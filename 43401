@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<title>MangaVault — Read Manga Free, No Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#08080e;--ink1:#0d0d16;--ink2:#13131e;--ink3:#1a1a28;--ink4:#222234;--ink5:#2c2c44;
+  --red:#e8304a;--red2:#ff5569;--red-glow:rgba(232,48,74,.15);
+  --gold:#f5c842;--teal:#00d4aa;--blue:#4ab8ff;
+  --fg0:#f2f2f8;--fg1:#9898c0;--fg2:#52527a;--fg3:#30304a;
+  --border:#1e1e30;--border2:#282840;
+  --r:8px;--rl:14px;--rxl:20px;
+  --nav-h:60px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--ink);color:var(--fg0);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:'Syne',sans-serif;cursor:pointer}
+img{display:block}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:3px}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:500;display:flex;align-items:center;gap:14px;padding:0 24px;background:rgba(8,8,14,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(24px)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.1em;color:var(--red);flex-shrink:0;cursor:pointer;user-select:none}
+.logo span{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;color:var(--fg2);letter-spacing:.15em;margin-top:-4px}
+.search-box{flex:1;max-width:440px;display:flex;align-items:center;background:var(--ink2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.search-box:focus-within{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow)}
+.search-box svg{width:16px;height:16px;margin:0 12px;stroke:var(--fg2);flex-shrink:0}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--fg0);font-size:13px;font-family:'Syne',sans-serif;padding:11px 0}
+.search-box input::placeholder{color:var(--fg2)}
+.nav-links{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.nav-link{padding:6px 14px;font-size:12px;font-weight:600;letter-spacing:.04em;border-radius:var(--r);border:none;background:transparent;color:var(--fg1);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-link:hover{color:var(--fg0);background:var(--ink3)}
+.nav-link.active{background:var(--red);color:#fff}
+
+/* APP */
+#app{padding-top:var(--nav-h)}
+.page{display:none}
+.page.active{display:block;min-height:calc(100vh - var(--nav-h))}
+
+/* HERO */
+.hero{padding:56px 24px 36px;text-align:center;background:linear-gradient(180deg,rgba(232,48,74,.07) 0%,transparent 100%);border-bottom:1px solid var(--border)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,80px);letter-spacing:.06em;line-height:.95;margin-bottom:12px}
+.hero h1 b{color:var(--red)}
+.hero p{font-size:15px;color:var(--fg1);max-width:480px;margin:0 auto 20px;line-height:1.75}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.hchip{padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;border-radius:20px;border:1px solid var(--border2);background:var(--ink2);color:var(--fg1);cursor:pointer;transition:all .15s}
+.hchip:hover{background:var(--red-glow);border-color:var(--red);color:var(--red)}
+
+/* SECTIONS */
+.section{padding:28px 24px}
+.s-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.s-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.07em}
+.s-sub{font-size:11px;color:var(--fg2);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+/* CONTINUE */
+.continue-wrap{padding:0 24px 4px}
+.c-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:linear-gradient(135deg,var(--ink2),var(--ink3));border:1px solid var(--border2);border-radius:var(--rxl);cursor:pointer;transition:border-color .2s}
+.c-card:hover{border-color:var(--red)}
+.c-thumb{width:48px;height:68px;border-radius:8px;object-fit:cover;background:var(--ink4);flex-shrink:0}
+.c-info{flex:1;min-width:0}
+.c-tag{font-size:9px;font-weight:700;color:var(--red);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.c-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-ch{font-size:11px;color:var(--fg1);margin-top:2px}
+.c-bar{height:2px;background:var(--ink5);border-radius:1px;margin-top:8px}
+.c-fill{height:100%;background:var(--red);border-radius:1px}
+
+/* FILTER */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.fchip{padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:20px;border:1px solid var(--border2);background:var(--ink2);color:var(--fg1);cursor:pointer;transition:all .15s}
+.fchip:hover{color:var(--fg0);background:var(--ink3)}
+.fchip.on{background:var(--red-glow);border-color:var(--red);color:var(--red)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:14px}
+.card{background:var(--ink1);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+.card:hover{transform:translateY(-4px);border-color:var(--red);box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.card-cov{width:100%;aspect-ratio:2/3;background:var(--ink3);overflow:hidden;position:relative}
+.card-cov img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .card-cov img{transform:scale(1.06)}
+.card-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--fg3)}
+.b-new{position:absolute;top:7px;right:7px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:.05em;font-family:'JetBrains Mono',monospace}
+.b-bm{position:absolute;top:7px;left:7px;font-size:14px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8))}
+.b-rd{position:absolute;bottom:7px;left:7px;background:rgba(0,212,170,.12);border:1px solid var(--teal);color:var(--teal);font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.04em}
+.card-body{padding:9px 10px 11px}
+.card-title{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{font-size:10px;color:var(--fg2);margin-top:4px;display:flex;align-items:center;gap:4px;font-weight:500}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.sdot.end{background:var(--fg3)}
+
+/* DETAIL */
+#detail-page{background:var(--ink)}
+.d-back{position:relative;height:260px;overflow:hidden;background:var(--ink2)}
+.d-back img{width:100%;height:100%;object-fit:cover;filter:blur(22px) brightness(.28);transform:scale(1.1)}
+.d-back-over{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,14,0),rgba(8,8,14,1))}
+.d-wrap{max-width:980px;margin:0 auto;padding:0 24px}
+.d-hero{display:flex;gap:24px;margin-top:-110px;position:relative;z-index:2;align-items:flex-end;padding-bottom:24px}
+.d-poster{width:140px;height:205px;flex-shrink:0;border-radius:var(--rl);object-fit:cover;background:var(--ink3);box-shadow:0 20px 60px rgba(0,0,0,.7);border:2px solid var(--border2)}
+.d-info{flex:1;min-width:0;padding-bottom:4px}
+.d-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,38px);letter-spacing:.04em;line-height:1;margin-bottom:10px}
+.d-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--ink3);border:1px solid var(--border2);color:var(--fg1)}
+.d-desc{font-size:13px;color:var(--fg1);line-height:1.8;margin-bottom:14px;max-width:620px}
+.d-acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{height:36px;padding:0 18px;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:var(--r);border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;transition:all .15s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:var(--ink3);color:var(--fg0);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--red);color:var(--red)}
+.ch-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r);margin-bottom:3px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.ch-item:hover{background:var(--ink2);border-color:var(--border)}
+.ch-item.read{opacity:.5}
+.ch-item.read .ch-num::before{content:'✓ ';color:var(--teal);font-size:10px}
+.ch-num{font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-sub{font-size:10px;color:var(--fg2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-date{font-size:11px;color:var(--fg2);flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px}
+.ch-newdot{display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin-left:6px;vertical-align:middle}
+.ch-dl-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:var(--ink3);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg1);font-size:14px;flex-shrink:0;transition:all .15s}
+.ch-dl-btn:hover{border-color:var(--teal);color:var(--teal)}
+.ch-dl-btn.saved{color:var(--teal);border-color:rgba(0,212,170,.4)}
+
+/* READER */
+#reader-page{background:#000;min-height:100vh}
+.r-bar{position:fixed;top:var(--nav-h);left:0;right:0;z-index:400;display:flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(0,0,0,.92);border-bottom:1px solid #181828;backdrop-filter:blur(16px)}
+.r-info{flex:1;min-width:0}
+.r-manga{font-size:10px;color:#555;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.r-ch{font-size:14px;font-weight:700;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mode-grp{display:flex;background:#111;border:1px solid #222;border-radius:var(--r);overflow:hidden;flex-shrink:0}
+.mbtn{padding:6px 12px;font-size:11px;font-weight:700;border:none;background:transparent;color:#555;cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:.04em;transition:all .15s}
+.mbtn.on{background:var(--red);color:#fff}
+.r-page-wrap{padding-top:calc(var(--nav-h) + 54px);display:flex;flex-direction:column;align-items:center;min-height:calc(100vh - var(--nav-h) - 54px)}
+.r-pview{display:flex;align-items:center;justify-content:center;padding:16px;flex:1}
+.r-pview img{max-width:min(720px,100%);max-height:84vh;object-fit:contain;border-radius:4px;box-shadow:0 8px 48px rgba(0,0,0,.8)}
+.r-scroll-wrap{padding-top:calc(var(--nav-h) + 54px);display:flex;flex-direction:column;align-items:center;gap:3px;padding-bottom:48px}
+.r-scroll-wrap img{max-width:min(820px,100%);width:100%}
+.r-controls{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:10px 20px 14px;background:rgba(0,0,0,.9);border-top:1px solid #181828;backdrop-filter:blur(16px);z-index:400}
+.r-controls button{height:36px;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:.04em;border-radius:var(--r);border:1px solid #2a2a3a;background:#141420;color:#ccc;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;flex-shrink:0}
+.r-controls button:hover{border-color:var(--red);color:var(--red)}
+.r-controls button:disabled{opacity:.2;pointer-events:none}
+.r-pg-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.r-pg-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888}
+.r-slider{width:100%;max-width:280px;accent-color:var(--red);cursor:pointer}
+
+/* NOVELS */
+.novel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ncard{display:flex;gap:14px;padding:16px;background:var(--ink1);border:1px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:all .2s;position:relative}
+.ncard:hover{border-color:var(--red);transform:translateY(-2px)}
+.nicon{width:52px;height:76px;flex-shrink:0;border-radius:7px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid var(--border)}
+.nbody{flex:1;min-width:0}
+.ntype{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:5px}
+.ntype.ln{background:rgba(74,184,255,.1);color:var(--blue);border:1px solid rgba(74,184,255,.25)}
+.ntype.wn{background:rgba(0,212,170,.1);color:var(--teal);border:1px solid rgba(0,212,170,.25)}
+.nname{font-size:13px;font-weight:700;margin-bottom:5px}
+.ndesc{font-size:11px;color:var(--fg1);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.next{position:absolute;top:12px;right:12px;font-size:13px;color:var(--fg2);transition:color .15s}
+.ncard:hover .next{color:var(--red)}
+
+/* STATS */
+.sh{background:linear-gradient(135deg,rgba(232,48,74,.1),transparent);border:1px solid rgba(232,48,74,.2);border-radius:var(--rxl);padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:24px}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--gold);letter-spacing:.02em;line-height:1}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.sbox{background:var(--ink2);border:1px solid var(--border);border-radius:var(--rl);padding:16px}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--red);letter-spacing:.04em;line-height:1}
+.sl{font-size:12px;color:var(--fg1);margin-top:4px;font-weight:600}
+.hrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.hthumb{width:38px;height:54px;border-radius:5px;object-fit:cover;background:var(--ink3);flex-shrink:0}
+.htitle{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsub{font-size:11px;color:var(--fg2);margin-top:2px}
+.hdate{font-size:10px;color:var(--fg2);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+
+.loader{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px;color:var(--fg2);flex-direction:column;font-size:13px}
+.spin{width:28px;height:28px;border:2px solid var(--ink4);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.errmsg{padding:30px;text-align:center;color:var(--red);font-size:13px}
+
+.empty{padding:70px 20px;text-align:center;color:var(--fg2);display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty .ei{font-size:46px;opacity:.4}
+.empty h3{font-size:15px;color:var(--fg1);font-weight:600}
+.empty p{font-size:12px;max-width:280px;line-height:1.7}
+
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink3);color:var(--fg0);font-size:12px;font-weight:600;letter-spacing:.03em;padding:10px 20px;border-radius:20px;border:1px solid var(--border2);opacity:0;transition:all .25s;z-index:9999;white-space:nowrap;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{color:var(--teal);border-color:rgba(0,212,170,.3)}
+#toast.bad{color:var(--red);border-color:rgba(232,48,74,.3)}
+
+@media(max-width:640px){
+  #nav{padding:0 12px;gap:8px}
+  .logo span{display:none}
+  .nav-links{gap:2px}
+  .nav-link{padding:5px 9px;font-size:11px}
+  .hero{padding:36px 14px 28px}
+  .section,.continue-wrap,.d-wrap{padding-left:14px;padding-right:14px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+  .d-hero{flex-direction:column;align-items:flex-start;margin-top:-70px;gap:14px}
+  .d-poster{width:105px;height:155px}
+  .novel-grid{grid-template-columns:1fr}
+  .sh{flex-direction:column;text-align:center}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .r-controls button{padding:0 12px}
+}
+</style>
+</head>
+<body>
+<nav id="nav">
+  <div class="logo" onclick="goHome()">MangaVault<span>Free · Dark · No Ads</span></div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="searchInput" placeholder="Search any manga…" autocomplete="off" spellcheck="false"/>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="goHome()">Home</button>
+    <button class="nav-link" onclick="goPage('novels-page');renderNovels()">Novels</button>
+    <button class="nav-link" onclick="goPage('saved-page');renderSaved()">Saved</button>
+    <button class="nav-link" onclick="goPage('offline-page');renderOffline()">Offline</button>
+    <button class="nav-link" onclick="goPage('stats-page');renderStats()">Stats</button>
+  </div>
+</nav>
+
+<div id="app">
+  <!-- HOME -->
+  <div id="home-page" class="page active">
+    <div class="hero">
+      <h1>Read Manga<br/><b>Free &amp; Ad-Free</b></h1>
+      <p>Live chapters straight from MangaDex. Bookmark, download offline, track progress. Zero ads. Forever.</p>
+      <div class="hero-chips" id="genreChips"></div>
+    </div>
+    <div class="continue-wrap" id="continueWrap" style="margin-top:20px"></div>
+    <div class="section">
+      <div class="s-head">
+        <div><div class="s-title" id="homeTitle">Popular Manga</div><div class="s-sub" id="homeSub">Live from MangaDex</div></div>
+      </div>
+      <div class="filters" id="filterBar"></div>
+      <div class="grid" id="mangaGrid"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="detail-page" class="page">
+    <div class="d-back"><img id="backdropImg" src="" alt=""/><div class="d-back-over"></div></div>
+    <div class="d-wrap">
+      <div class="d-hero">
+        <img id="dPoster" class="d-poster" src="" alt=""/>
+        <div class="d-info">
+          <div class="d-title" id="dTitle"></div>
+          <div class="d-tags" id="dTags"></div>
+          <div class="d-desc" id="dDesc"></div>
+          <div class="d-acts">
+            <button class="btn btn-red" onclick="readFirst()">▶ Start Reading</button>
+            <button class="btn btn-ghost" id="bmBtn" onclick="toggleBm()">🔖 Save</button>
+            <button class="btn btn-ghost" onclick="refreshCh()">↻ Update</button>
+          </div>
+        </div>
+      </div>
+      <div class="s-head" style="margin-bottom:10px">
+        <div class="s-title" id="chTitle">Chapters</div>
+        <div class="s-sub" id="chSub"></div>
+      </div>
+      <div id="chList" style="padding-bottom:40px"></div>
+    </div>
+  </div>
+
+  <!-- READER -->
+  <div id="reader-page" class="page">
+    <div class="r-bar">
+      <button class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:12px;flex-shrink:0" onclick="backFromReader()">← Back</button>
+      <div class="r-info"><div class="r-manga" id="rManga"></div><div class="r-ch" id="rCh"></div></div>
+      <div class="mode-grp">
+        <button class="mbtn on" id="mPage" onclick="setMode('page')">Page</button>
+        <button class="mbtn" id="mScroll" onclick="setMode('scroll')">Scroll</button>
+      </div>
+    </div>
+    <div id="readerContent"></div>
+    <div class="r-controls" id="rControls">
+      <button id="prevBtn" onclick="prevPage()">← Prev</button>
+      <div class="r-pg-info">
+        <span class="r-pg-count" id="pgCount">1 / 1</span>
+        <input type="range" class="r-slider" id="pgSlider" min="1" max="1" value="1" oninput="jumpTo(+this.value)"/>
+      </div>
+      <button id="nextBtn" onclick="nextPage()">Next →</button>
+    </div>
+  </div>
+
+  <!-- NOVELS -->
+  <div id="novels-page" class="page">
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Light Novels</div><div class="s-sub">Companion reads for anime fans</div></div></div>
+      <div class="novel-grid" id="novelGrid"></div>
+    </div>
+  </div>
+
+  <!-- SAVED -->
+  <div id="saved-page" class="page">
+    <div class="section">
+      <div class="s-head"><div class="s-title">Saved Manga</div></div>
+      <div class="grid" id="savedGrid"></div>
+    </div>
+  </div>
+
+  <!-- OFFLINE -->
+  <div id="offline-page" class="page">
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Downloaded Chapters</div><div class="s-sub">Read without internet</div></div></div>
+      <div id="offlineList"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="stats-page" class="page">
+    <div class="section" id="statsContent"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const API='https://api.mangadex.org';
+const CDN='https://uploads.mangadex.org';
+let pages=[],curPage=0,readMode='page';
+let curManga=null,curChapters=[],curChIdx=0;
+let curFilter='all',allMangaData=[];
+let prevPageId='home-page';
+
+const LS=k=>JSON.parse(localStorage.getItem(k)||'null');
+let BM=LS('mv4_bm')||{};
+let DL=LS('mv4_dl')||{};
+let HIST=LS('mv4_hist')||[];
+let READ=LS('mv4_read')||{};
+let STATS=LS('mv4_stats')||{pages:0,chapters:0,streak:0,lastDate:null,lastRead:null};
+function save(){localStorage.setItem('mv4_bm',JSON.stringify(BM));localStorage.setItem('mv4_dl',JSON.stringify(DL));localStorage.setItem('mv4_hist',JSON.stringify(HIST));localStorage.setItem('mv4_read',JSON.stringify(READ));localStorage.setItem('mv4_stats',JSON.stringify(STATS));}
+
+const CATALOG=[
+  {q:"Komi Can't Communicate",tags:['romance','comedy']},
+  {q:"Alya Sometimes Hides Her Feelings in Russian",tags:['romance','comedy']},
+  {q:"Spy x Family",tags:['action','comedy']},
+  {q:"Demon Slayer",tags:['action']},
+  {q:"Chainsaw Man",tags:['action']},
+  {q:"My Hero Academia",tags:['action']},
+  {q:"Jujutsu Kaisen",tags:['action']},
+  {q:"One Piece",tags:['action','adventure']},
+  {q:"Solo Leveling",tags:['action','isekai']},
+  {q:"Attack on Titan",tags:['action','drama']},
+  {q:"Mushoku Tensei",tags:['isekai','romance']},
+  {q:"Overlord",tags:['isekai','action']},
+  {q:"That Time I Got Reincarnated as a Slime",tags:['isekai','comedy']},
+  {q:"Re:Zero",tags:['isekai','drama']},
+  {q:"Rising of the Shield Hero",tags:['isekai','action']},
+  {q:"Horimiya",tags:['romance','comedy']},
+  {q:"Your Lie in April",tags:['romance','drama']},
+  {q:"Toradora",tags:['romance','comedy']},
+  {q:"Classroom of the Elite",tags:['drama','action']},
+  {q:"Vinland Saga",tags:['action','drama','adventure']},
+  {q:"Blue Lock",tags:['action','sports']},
+  {q:"Haikyuu",tags:['sports','comedy']},
+];
+const FILTERS=['all','action','romance','comedy','isekai','drama','sports','adventure'];
+const GENRES=['Action','Romance','Isekai','Comedy','Drama','Fantasy','Sports','Adventure'];
+const NOVELS=[
+  {t:"Komi Can't Communicate",desc:"Shouko Komi dreams of making 100 friends despite her crippling communication disorder. Hilarious, warm, and deeply human.",icon:"📚",type:"ln",url:"komi-san-wa-komyushou-desu"},
+  {t:"Alya Hides Her Feelings in Russian",desc:"Half-Russian idol Alisa confesses to Kuze in Russian — unaware that he understands every word. Sharp wit and slow-burn romance.",icon:"🇷🇺",type:"ln",url:"alyonushka-sometimes-hides-her-feelings-in-russian"},
+  {t:"Mushoku Tensei",desc:"A NEET reborn in a fantasy world, determined to live without regrets. The light novel that sparked the isekai renaissance.",icon:"✨",type:"ln",url:"mushoku-tensei-isekai-ittara-honki-dasu"},
+  {t:"Re:Zero",desc:"Subaru can return from death — but every loop costs him more. Dark, emotional, and impossible to put down.",icon:"⏪",type:"wn",url:"rezero-kara-hajimeru-isekai-seikatsu"},
+  {t:"That Time I Got Reincarnated as a Slime",desc:"Reborn as a slime, Rimuru Tempest builds a monster nation. Wholesome power fantasy with brilliant world-building.",icon:"🟢",type:"ln",url:"tensei-shitara-slime-datta-ken"},
+  {t:"Overlord",desc:"The last player of a dead MMO wakes up as undead overlord Ainz Ooal Gown in a living game world.",icon:"💀",type:"ln",url:"overlord"},
+  {t:"No Game No Life",desc:"Genius gamer siblings summoned to a world where every conflict is decided by games. Wild, colourful, mind-bending.",icon:"🎮",type:"ln",url:"no-game-no-life"},
+  {t:"Sword Art Online",desc:"10,000 players trapped in a VR RPG where death is real. Kirito fights his way to the 100th floor.",icon:"⚔️",type:"ln",url:"sword-art-online"},
+  {t:"Rising of the Shield Hero",desc:"Betrayed from day one, Naofumi claws his way back with grit, Raphtalia, and a Filo-sized heart.",icon:"🛡️",type:"ln",url:"tate-no-yuusha-no-nariagari"},
+  {t:"Toradora",desc:"Ryuuji and Taiga team up to chase each other's crushes — and stumble into something neither expected.",icon:"🐯",type:"ln",url:"toradora"},
+  {t:"Classroom of the Elite",desc:"A prestigious school's brutal social hierarchy dissected through cold psychological warfare.",icon:"🏫",type:"ln",url:"youkoso-jitsuryoku-shijou-shugi"},
+  {t:"Spice and Wolf",desc:"Merchant Lawrence and wolf deity Holo travel medieval roads. Economics, banter, and the best slow-burn romance.",icon:"🐺",type:"ln",url:"spice-and-wolf"},
+];
+
+function getCover(m){const r=m.relationships?.find(r=>r.type==='cover_art');return r?.attributes?.fileName?`${CDN}/covers/${m.id}/${r.attributes.fileName}.256.jpg`:'';}
+function getTitle(m){const t=m.attributes?.title;return t?.en||Object.values(t||{})[0]||'Unknown';}
+function isNew(ch){return ch.attributes?.publishAt&&Date.now()-new Date(ch.attributes.publishAt)<8.64e8;}
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2500);}
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));window.scrollTo(0,0);}
+function goHome(){goPage('home-page');document.querySelectorAll('.nav-link')[0].classList.add('active');}
+function backFromReader(){goPage(prevPageId||'detail-page');}
+async function fetchOne(q){const r=await fetch(`${API}/manga?title=${encodeURIComponent(q)}&limit=1&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`);const d=await r.json();return d.data?.[0]||null;}
+
+function init(){
+  buildFilters();buildGenreChips();renderNovels();renderContinue();
+  loadLibrary();
+}
+
+function buildFilters(){
+  const c=document.getElementById('filterBar');
+  FILTERS.forEach(f=>{
+    const b=document.createElement('button');b.className='fchip'+(f==='all'?' on':'');
+    b.textContent=f==='all'?'All':f[0].toUpperCase()+f.slice(1);
+    b.onclick=()=>{curFilter=f;document.querySelectorAll('.fchip').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderGrid();};
+    c.appendChild(b);
+  });
+}
+function buildGenreChips(){
+  const p=document.getElementById('genreChips');
+  GENRES.forEach(g=>{
+    const b=document.createElement('button');b.className='hchip';b.textContent=g;
+    b.onclick=()=>{document.getElementById('searchInput').value=g;doSearch();};
+    p.appendChild(b);
+  });
+}
+
+async function loadLibrary(){
+  const g=document.getElementById('mangaGrid');
+  g.innerHTML='<div class="loader"><div class="spin"></div><div>Loading manga…</div></div>';
+  document.getElementById('homeTitle').textContent='Popular Manga';
+  document.getElementById('homeSub').textContent='Live from MangaDex';
+  const settled=await Promise.allSettled(CATALOG.map(c=>fetchOne(c.q)));
+  allMangaData=settled.map((r,i)=>({m:r.status==='fulfilled'?r.value:null,meta:CATALOG[i]})).filter(x=>x.m);
+  renderGrid();renderContinue();
+  checkNewChapters();
+}
+
+function renderGrid(){
+  const g=document.getElementById('mangaGrid');g.innerHTML='';
+  const list=curFilter==='all'?allMangaData:allMangaData.filter(x=>x.meta.tags.includes(curFilter));
+  if(!list.length){g.innerHTML='<div class="errmsg">No manga for this filter.</div>';return;}
+  list.forEach(({m})=>g.appendChild(makeCard(m)));
+}
+
+function makeCard(m){
+  const cover=getCover(m),title=getTitle(m),isBm=!!BM[m.id],hasHist=HIST.some(h=>h.mid===m.id);
+  const div=document.createElement('div');div.className='card';
+  div.innerHTML=`<div class="card-cov">${cover?`<img src="${cover}" alt="${title}" loading="lazy"/>`:'<div class="card-ph">📖</div>'}${isBm?'<div class="b-bm">⭐</div>':''}${hasHist?'<div class="b-rd">Reading</div>':''}</div><div class="card-body"><div class="card-title">${title}</div><div class="card-meta"><div class="sdot${m.attributes?.status==='completed'?' end':''}"></div>${m.attributes?.status||'unknown'}</div></div>`;
+  div.onclick=()=>openDetail(m);return div;
+}
+
+async function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();if(!q)return;
+  goHome();
+  document.getElementById('homeTitle').textContent=`"${q}"`;
+  document.getElementById('homeSub').textContent='MangaDex results';
+  document.getElementById('continueWrap').innerHTML='';
+  const g=document.getElementById('mangaGrid');
+  g.innerHTML='<div class="loader"><div class="spin"></div><div>Searching…</div></div>';
+  try{
+    const r=await fetch(`${API}/manga?title=${encodeURIComponent(q)}&limit=30&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`);
+    const d=await r.json();
+    allMangaData=(d.data||[]).map(m=>({m,meta:{tags:[]}}));renderGrid();
+  }catch{g.innerHTML='<div class="errmsg">Search failed. Check your internet.</div>';}
+}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+
+async function openDetail(m){
+  curManga=m;prevPageId=document.querySelector('.page.active')?.id||'home-page';
+  goPage('detail-page');
+  const title=getTitle(m),cover=getCover(m);
+  document.getElementById('dTitle').textContent=title;
+  document.getElementById('dPoster').src=cover||'';
+  document.getElementById('backdropImg').src=cover||'';
+  const desc=m.attributes?.description?.en||Object.values(m.attributes?.description||{})[0]||'No description available.';
+  document.getElementById('dDesc').textContent=desc;
+  document.getElementById('dTags').innerHTML=(m.attributes?.tags||[]).slice(0,7).map(t=>`<span class="tag">${t.attributes?.name?.en||''}</span>`).join('');
+  updateBmBtn();
+  document.getElementById('chList').innerHTML='<div class="loader"><div class="spin"></div></div>';
+  await loadCh();
+}
+function updateBmBtn(){document.getElementById('bmBtn').textContent=BM[curManga?.id]?'✅ Saved':'🔖 Save';}
+async function loadCh(){
+  try{
+    const r=await fetch(`${API}/chapter?manga=${curManga.id}&translatedLanguage[]=en&order[chapter]=asc&limit=500`);
+    const d=await r.json();curChapters=d.data||[];
+    document.getElementById('chTitle').textContent='Chapters';
+    document.getElementById('chSub').textContent=`${curChapters.length} English chapters`;
+    renderChList();
+  }catch{document.getElementById('chList').innerHTML='<div class="errmsg">Could not load chapters.</div>';}
+}
+async function refreshCh(){toast('Checking for new chapters…');await loadCh();toast('Up to date ✓','ok');}
+function renderChList(){
+  const cl=document.getElementById('chList');cl.innerHTML='';
+  if(!curChapters.length){cl.innerHTML='<div class="errmsg">No English chapters found.</div>';return;}
+  curChapters.forEach((ch,i)=>{
+    const num=ch.attributes?.chapter||'?',sub=ch.attributes?.title||'',date=ch.attributes?.publishAt?new Date(ch.attributes.publishAt).toLocaleDateString():'';
+    const isDl=!!DL[ch.id],isRead=!!READ[ch.id];
+    const row=document.createElement('div');row.className='ch-item'+(isRead?' read':'');
+    row.innerHTML=`<div style="flex:1;min-width:0"><div class="ch-num">Chapter ${num}${isNew(ch)?'<span class="ch-newdot"></span>':''}${isDl?' <span style="color:var(--teal);font-size:10px;font-weight:700">⬇</span>':''}</div>${sub?`<div class="ch-sub">${sub}</div>`:''}</div><div class="ch-date">${date}</div><div class="ch-dl-btn ${isDl?'saved':''}" onclick="event.stopPropagation();dlCh(${i},this)">${isDl?'✓':'↓'}</div>`;
+    row.onclick=()=>openReader(i);cl.appendChild(row);
+  });
+}
+function toggleBm(){
+  if(!curManga)return;
+  if(BM[curManga.id]){delete BM[curManga.id];toast('Removed from saved');}
+  else{BM[curManga.id]={id:curManga.id,title:getTitle(curManga),cover:getCover(curManga),status:curManga.attributes?.status||''};toast('Saved! 🔖','ok');}
+  save();updateBmBtn();
+}
+
+async function openReader(idx){
+  curChIdx=idx;const ch=curChapters[idx];
+  prevPageId=document.querySelector('.page.active')?.id||'detail-page';
+  goPage('reader-page');
+  document.getElementById('rManga').textContent=getTitle(curManga);
+  document.getElementById('rCh').textContent=`Chapter ${ch.attributes?.chapter||'?'}${ch.attributes?.title?' — '+ch.attributes.title:''}`;
+  document.getElementById('readerContent').innerHTML='<div class="loader" style="padding-top:100px"><div class="spin"></div><div>Loading pages…</div></div>';
+  document.getElementById('rControls').style.display='flex';
+  if(DL[ch.id]){const dl=DL[ch.id];pages=dl.imgs.map(f=>`${dl.baseUrl}/data/${dl.hash}/${f}`);curPage=0;renderReader();markRead(ch.id);saveProgress(ch);toast('Reading offline ✓','ok');return;}
+  try{
+    const r=await fetch(`${API}/at-home/server/${ch.id}`);const d=await r.json();
+    pages=(d.chapter?.data||[]).map(f=>`${d.baseUrl}/data/${d.chapter.hash}/${f}`);
+    curPage=0;renderReader();markRead(ch.id);saveProgress(ch);
+  }catch{document.getElementById('readerContent').innerHTML='<div class="errmsg" style="padding-top:120px">Could not load pages. Check connection.</div>';}
+}
+function readFirst(){if(curChapters.length)openReader(0);}
+
+function renderReader(){
+  const rc=document.getElementById('readerContent'),bar=document.getElementById('rControls');
+  rc.innerHTML='';
+  if(readMode==='scroll'){
+    bar.style.display='none';
+    const w=document.createElement('div');w.className='r-scroll-wrap';
+    pages.forEach((src,i)=>{const img=document.createElement('img');img.src=src;img.alt=`Page ${i+1}`;img.loading='lazy';w.appendChild(img);});
+    rc.appendChild(w);
+  } else {
+    bar.style.display='flex';
+    const w=document.createElement('div');w.className='r-page-wrap';
+    const pv=document.createElement('div');pv.className='r-pview';pv.id='pgView';
+    const img=document.createElement('img');img.src=pages[curPage];img.alt=`Page ${curPage+1}`;
+    pv.appendChild(img);w.appendChild(pv);rc.appendChild(w);
+    const sl=document.getElementById('pgSlider');sl.max=pages.length;sl.value=curPage+1;
+    document.getElementById('pgCount').textContent=`${curPage+1} / ${pages.length}`;
+    document.getElementById('prevBtn').disabled=curPage===0&&curChIdx===0;
+    document.getElementById('nextBtn').disabled=curPage===pages.length-1&&curChIdx===curChapters.length-1;
+    const h=HIST.find(x=>x.mid===curManga?.id);if(h){h.page=curPage;h.pct=Math.round(curPage/pages.length*100);save();}
+    STATS.pages=(STATS.pages||0)+1;save();
+  }
+}
+function jumpTo(v){curPage=v-1;const img=document.querySelector('#pgView img');if(img)img.src=pages[curPage];document.getElementById('pgCount').textContent=`${curPage+1} / ${pages.length}`;}
+function prevPage(){if(curPage>0){curPage--;renderReader();}else if(curChIdx>0)openReader(curChIdx-1);}
+function nextPage(){if(curPage<pages.length-1){curPage++;renderReader();}else if(curChIdx<curChapters.length-1)openReader(curChIdx+1);}
+function setMode(m){readMode=m;document.getElementById('mPage').className='mbtn'+(m==='page'?' on':'');document.getElementById('mScroll').className='mbtn'+(m==='scroll'?' on':'');renderReader();}
+
+let _tx=0;
+document.getElementById('reader-page').addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;},{passive:true});
+document.getElementById('reader-page').addEventListener('touchend',e=>{if(readMode!=='page')return;const dx=e.changedTouches[0].clientX-_tx;if(Math.abs(dx)>55){dx<0?nextPage():prevPage();}});
+document.addEventListener('keydown',e=>{if(!document.getElementById('reader-page').classList.contains('active'))return;if(e.key==='ArrowRight'||e.key==='ArrowDown')nextPage();if(e.key==='ArrowLeft'||e.key==='ArrowUp')prevPage();if(e.key==='Escape')backFromReader();});
+
+function markRead(chId){
+  if(!READ[chId]){READ[chId]=true;STATS.chapters=(STATS.chapters||0)+1;
+    const today=new Date().toDateString();
+    if(STATS.lastDate!==today){STATS.streak=STATS.lastDate===new Date(Date.now()-864e5).toDateString()?STATS.streak+1:1;STATS.lastDate=today;}
+    STATS.lastRead=new Date().toISOString();save();}
+}
+function saveProgress(ch){
+  if(!curManga)return;
+  const e={mid:curManga.id,title:getTitle(curManga),ch:ch.attributes?.chapter||'?',chIdx:curChIdx,page:curPage,pct:0,cover:getCover(curManga),date:new Date().toISOString()};
+  const i=HIST.findIndex(h=>h.mid===curManga.id);if(i>=0)HIST.splice(i,1);HIST.unshift(e);HIST=HIST.slice(0,30);save();
+}
+
+function renderContinue(){
+  const w=document.getElementById('continueWrap');w.innerHTML='';
+  if(!HIST.length)return;
+  const last=HIST[0];
+  w.innerHTML=`<div class="c-card" onclick="resumeReading('${last.mid}','${encodeURIComponent(last.title)}')">
+    ${last.cover?`<img class="c-thumb" src="${last.cover}" alt=""/>`:`<div class="c-thumb" style="display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:8px;background:var(--ink4)">📖</div>`}
+    <div class="c-info"><div class="c-tag">Continue Reading</div><div class="c-title">${last.title}</div><div class="c-ch">Chapter ${last.ch} · Page ${(last.page||0)+1}</div><div class="c-bar"><div class="c-fill" style="width:${last.pct||0}%"></div></div></div>
+    <div class="continue-arrow" style="font-size:22px;color:var(--fg2)">›</div>
+  </div>`;
+}
+async function resumeReading(mid,titleEnc){
+  const title=decodeURIComponent(titleEnc);toast('Resuming…');
+  const m=await fetchOne(title).catch(()=>null);if(!m){toast('Could not load','bad');return;}
+  await openDetail(m);const last=HIST.find(h=>h.mid===mid);
+  if(last&&curChapters.length>last.chIdx){await openReader(last.chIdx);curPage=last.page||0;renderReader();}
+}
+
+async function dlCh(idx,btn){
+  const ch=curChapters[idx];if(DL[ch.id]){toast('Already downloaded!');return;}
+  btn.textContent='⏳';btn.style.pointerEvents='none';
+  try{
+    const r=await fetch(`${API}/at-home/server/${ch.id}`);const d=await r.json();
+    DL[ch.id]={id:ch.id,chNum:ch.attributes?.chapter||'?',mangaTitle:getTitle(curManga),mangaId:curManga.id,hash:d.chapter?.hash,imgs:d.chapter?.data||[],baseUrl:d.baseUrl,totalPages:d.chapter?.data?.length||0,cover:getCover(curManga),date:new Date().toLocaleDateString()};
+    save();btn.textContent='✓';btn.className='ch-dl-btn saved';toast(`Chapter ${ch.attributes?.chapter} saved offline ✓`,'ok');
+  }catch{btn.textContent='↓';btn.style.pointerEvents='auto';toast('Download failed','bad');}
+}
+
+function renderOffline(){
+  const ol=document.getElementById('offlineList');ol.innerHTML='';
+  const items=Object.values(DL);
+  if(!items.length){ol.innerHTML='<div class="empty"><div class="ei">📥</div><h3>No downloads yet</h3><p>Tap the ↓ button on any chapter to save it for offline reading.</p></div>';return;}
+  items.forEach(item=>{
+    const d=document.createElement('div');d.dataset.dlid=item.id;
+    d.style.cssText='display:flex;align-items:center;gap:14px;padding:14px;background:var(--ink2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;cursor:pointer;transition:border-color .2s';
+    d.innerHTML=`${item.cover?`<img src="${item.cover}" style="width:46px;height:66px;border-radius:7px;object-fit:cover;flex-shrink:0" alt=""/>`:''}
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">${item.mangaTitle}</div><div style="font-size:11px;color:var(--fg2);margin-top:3px">Chapter ${item.chNum} · ${item.totalPages} pages · ${item.date}</div></div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button class="btn btn-red" style="height:30px;padding:0 12px;font-size:11px" onclick="event.stopPropagation();readOffline('${item.id}')">Read</button>
+      <button class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:11px" onclick="event.stopPropagation();delDl('${item.id}')">✕</button>
+    </div>`;
+    d.onmouseenter=()=>d.style.borderColor='var(--red)';d.onmouseleave=()=>d.style.borderColor='var(--border)';
+    ol.appendChild(d);
+  });
+}
+function readOffline(id){const item=DL[id];if(!item){toast('Not found','bad');return;}prevPageId='offline-page';goPage('reader-page');document.getElementById('rManga').textContent=item.mangaTitle;document.getElementById('rCh').textContent=`Chapter ${item.chNum} — Offline`;pages=item.imgs.map(f=>`${item.baseUrl}/data/${item.hash}/${f}`);curPage=0;renderReader();}
+function delDl(id){delete DL[id];save();const el=document.querySelector(`[data-dlid="${id}"]`);if(el)el.remove();toast('Deleted');if(!document.querySelector('[data-dlid]'))renderOffline();}
+
+function renderSaved(){
+  const g=document.getElementById('savedGrid');g.innerHTML='';
+  const bms=Object.values(BM);
+  if(!bms.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🔖</div><h3>Nothing saved yet</h3><p>Click Save on any manga to bookmark it here.</p></div>';return;}
+  bms.forEach(b=>{const card=document.createElement('div');card.className='card';card.innerHTML=`<div class="card-cov">${b.cover?`<img src="${b.cover}" loading="lazy" alt=""/>`:'<div class="card-ph">📖</div>'}<div class="b-bm">⭐</div></div><div class="card-body"><div class="card-title">${b.title}</div><div class="card-meta"><div class="sdot${b.status==='completed'?' end':''}"></div>${b.status}</div></div>`;card.onclick=()=>fetchOne(b.title).then(m=>{if(m)openDetail(m);else toast('Could not load','bad');});g.appendChild(card);});
+}
+
+async function checkNewChapters(){
+  const ids=Object.keys(BM).slice(0,6);if(!ids.length)return;let n=0;
+  for(const id of ids){try{const r=await fetch(`${API}/chapter?manga=${id}&translatedLanguage[]=en&order[chapter]=desc&limit=1`);const d=await r.json();if(d.data?.[0]&&isNew(d.data[0]))n++;}catch{}}
+  if(n)toast(`🎉 ${n} new chapter${n>1?'s':''} in your saved manga!`,'ok');
+}
+
+function renderStats(){
+  const el=document.getElementById('statsContent');const h=HIST.slice(0,10);
+  el.innerHTML=`<div class="s-head"><div class="s-title">Reading Stats</div></div>
+  <div class="sh"><div class="snum">${STATS.streak||0}</div><div><div style="font-size:18px;font-weight:700;margin-bottom:4px">Day Streak 🔥</div><div style="font-size:13px;color:var(--fg1)">Keep reading daily to build your streak.</div>${STATS.lastRead?`<div style="font-size:11px;color:var(--fg2);margin-top:6px;font-family:'JetBrains Mono',monospace">Last read: ${new Date(STATS.lastRead).toLocaleDateString()}</div>`:''}</div></div>
+  <div class="sgrid">
+    <div class="sbox"><div class="sn">${STATS.chapters||0}</div><div class="sl">Chapters Read</div></div>
+    <div class="sbox"><div class="sn">${(STATS.pages||0).toLocaleString()}</div><div class="sl">Pages Read</div></div>
+    <div class="sbox"><div class="sn">${Object.keys(BM).length}</div><div class="sl">Saved Manga</div></div>
+    <div class="sbox"><div class="sn">${Object.keys(DL).length}</div><div class="sl">Offline Chapters</div></div>
+  </div>
+  <div class="s-head" style="margin-bottom:10px"><div class="s-title">Reading History</div></div>
+  ${h.length?h.map(x=>`<div class="hrow">${x.cover?`<img class="hthumb" src="${x.cover}" alt=""/>`:'<div class="hthumb" style="display:flex;align-items:center;justify-content:center;font-size:16px">📖</div>'}<div style="flex:1;min-width:0"><div class="htitle">${x.title}</div><div class="hsub">Chapter ${x.ch} · Page ${(x.page||0)+1}</div></div><div class="hdate">${x.date?new Date(x.date).toLocaleDateString():''}</div></div>`).join(''):`<div class="empty"><div class="ei">📊</div><h3>No history yet</h3><p>Start reading to track progress here.</p></div>`}`;
+}
+
+function renderNovels(){
+  const g=document.getElementById('novelGrid');if(g.children.length)return;
+  NOVELS.forEach(n=>{const d=document.createElement('div');d.className='ncard';d.innerHTML=`<div class="nicon">${n.icon}</div><div class="nbody"><span class="ntype ${n.type}">${n.type==='ln'?'Light Novel':'Web Novel'}</span><div class="nname">${n.t}</div><div class="ndesc">${n.desc}</div></div><div class="next">↗</div>`;d.onclick=()=>window.open(`https://www.novelupdates.com/series-finder/?sf=1&sh=${encodeURIComponent(n.t)}`,'_blank');g.appendChild(d);});
+}
+
+init();
+</script>
+</body>
+</html>
