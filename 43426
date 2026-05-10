@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<title>MangaVault — Read Manga Free, No Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#08080e;--ink1:#0d0d16;--ink2:#13131e;--ink3:#1a1a28;--ink4:#222234;--ink5:#2c2c44;
+  --red:#e8304a;--red2:#ff5569;--red-glow:rgba(232,48,74,.15);
+  --gold:#f5c842;--teal:#00d4aa;--blue:#4ab8ff;
+  --fg0:#f2f2f8;--fg1:#9898c0;--fg2:#52527a;--fg3:#30304a;
+  --border:#1e1e30;--border2:#282840;
+  --r:8px;--rl:14px;--rxl:20px;--nav-h:60px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--ink);color:var(--fg0);min-height:100vh;overflow-x:hidden}
+button{font-family:'Syne',sans-serif;cursor:pointer}
+img{display:block}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:3px}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:500;display:flex;align-items:center;gap:14px;padding:0 24px;background:rgba(8,8,14,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(24px)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.1em;color:var(--red);flex-shrink:0;cursor:pointer;user-select:none;line-height:1}
+.logo span{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;color:var(--fg2);letter-spacing:.15em;margin-top:-3px}
+.search-box{flex:1;max-width:440px;display:flex;align-items:center;background:var(--ink2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.search-box:focus-within{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow)}
+.search-box svg{width:16px;height:16px;margin:0 12px;stroke:var(--fg2);flex-shrink:0}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--fg0);font-size:13px;font-family:'Syne',sans-serif;padding:11px 0}
+.search-box input::placeholder{color:var(--fg2)}
+.nav-links{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.nav-link{padding:6px 13px;font-size:12px;font-weight:600;letter-spacing:.04em;border-radius:var(--r);border:none;background:transparent;color:var(--fg1);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-link:hover{color:var(--fg0);background:var(--ink3)}
+.nav-link.active{background:var(--red);color:#fff}
+
+/* PAGES */
+#app{padding-top:var(--nav-h)}
+.page{display:none}
+.page.active{display:block;min-height:calc(100vh - var(--nav-h))}
+
+/* HERO */
+.hero{padding:56px 24px 36px;text-align:center;background:linear-gradient(180deg,rgba(232,48,74,.07) 0%,transparent 100%);border-bottom:1px solid var(--border)}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,80px);letter-spacing:.06em;line-height:.95;margin-bottom:12px}
+.hero h1 b{color:var(--red)}
+.hero p{font-size:15px;color:var(--fg1);max-width:480px;margin:0 auto 20px;line-height:1.75}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.hchip{padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;border-radius:20px;border:1px solid var(--border2);background:var(--ink2);color:var(--fg1);cursor:pointer;transition:all .15s}
+.hchip:hover{background:var(--red-glow);border-color:var(--red);color:var(--red)}
+
+/* SECTION */
+.section{padding:28px 24px}
+.s-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.s-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.07em}
+.s-sub{font-size:11px;color:var(--fg2);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+/* CONTINUE */
+.continue-wrap{padding:0 24px 4px}
+.c-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:linear-gradient(135deg,var(--ink2),var(--ink3));border:1px solid var(--border2);border-radius:var(--rxl);cursor:pointer;transition:border-color .2s}
+.c-card:hover{border-color:var(--red)}
+.c-thumb{width:48px;height:68px;border-radius:8px;object-fit:cover;background:var(--ink4);flex-shrink:0}
+.c-info{flex:1;min-width:0}
+.c-tag{font-size:9px;font-weight:700;color:var(--red);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.c-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-ch{font-size:11px;color:var(--fg1);margin-top:2px}
+.c-bar{height:2px;background:var(--ink5);border-radius:1px;margin-top:8px}
+.c-fill{height:100%;background:var(--red);border-radius:1px}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.fchip{padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:20px;border:1px solid var(--border2);background:var(--ink2);color:var(--fg1);cursor:pointer;transition:all .15s}
+.fchip:hover{color:var(--fg0);background:var(--ink3)}
+.fchip.on{background:var(--red-glow);border-color:var(--red);color:var(--red)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:14px}
+.card{background:var(--ink1);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+.card:hover{transform:translateY(-4px);border-color:var(--red);box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.card-cov{width:100%;aspect-ratio:2/3;background:var(--ink3);overflow:hidden;position:relative}
+.card-cov img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .card-cov img{transform:scale(1.06)}
+.card-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--fg3)}
+.b-new{position:absolute;top:7px;right:7px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:.05em;font-family:'JetBrains Mono',monospace}
+.b-bm{position:absolute;top:7px;left:7px;font-size:14px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8))}
+.b-rd{position:absolute;bottom:7px;left:7px;background:rgba(0,212,170,.12);border:1px solid var(--teal);color:var(--teal);font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px}
+.card-body{padding:9px 10px 11px}
+.card-title{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{font-size:10px;color:var(--fg2);margin-top:4px;display:flex;align-items:center;gap:4px;font-weight:500}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.sdot.end{background:var(--fg3)}
+
+/* DETAIL */
+#detail-page{background:var(--ink)}
+.d-back{position:relative;height:260px;overflow:hidden;background:var(--ink2)}
+.d-back img{width:100%;height:100%;object-fit:cover;filter:blur(22px) brightness(.28);transform:scale(1.1)}
+.d-back-over{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,14,0),rgba(8,8,14,1))}
+.d-wrap{max-width:980px;margin:0 auto;padding:0 24px}
+.d-hero{display:flex;gap:24px;margin-top:-110px;position:relative;z-index:2;align-items:flex-end;padding-bottom:24px}
+.d-poster{width:140px;height:205px;flex-shrink:0;border-radius:var(--rl);object-fit:cover;background:var(--ink3);box-shadow:0 20px 60px rgba(0,0,0,.7);border:2px solid var(--border2)}
+.d-info{flex:1;min-width:0;padding-bottom:4px}
+.d-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,38px);letter-spacing:.04em;line-height:1;margin-bottom:10px}
+.d-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--ink3);border:1px solid var(--border2);color:var(--fg1)}
+.d-desc{font-size:13px;color:var(--fg1);line-height:1.8;margin-bottom:14px;max-width:620px}
+.d-acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{height:36px;padding:0 18px;font-size:12px;font-weight:700;letter-spacing:.05em;border-radius:var(--r);border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;transition:all .15s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:var(--ink3);color:var(--fg0);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--red);color:var(--red)}
+.ch-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r);margin-bottom:3px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.ch-item:hover{background:var(--ink2);border-color:var(--border)}
+.ch-item.read{opacity:.5}
+.ch-item.read .ch-num::before{content:'✓ ';color:var(--teal);font-size:10px}
+.ch-num{font-size:13px;font-weight:600;flex:1;min-width:0}
+.ch-sub{font-size:10px;color:var(--fg2);margin-top:2px}
+.ch-date{font-size:10px;color:var(--fg2);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.ch-newdot{display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin-left:6px;vertical-align:middle}
+.ch-dl-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:var(--ink3);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg1);font-size:14px;flex-shrink:0;transition:all .15s}
+.ch-dl-btn:hover{border-color:var(--teal);color:var(--teal)}
+.ch-dl-btn.saved{color:var(--teal);border-color:rgba(0,212,170,.4)}
+
+/* READER */
+#reader-page{background:#000;min-height:100vh}
+.r-bar{position:fixed;top:var(--nav-h);left:0;right:0;z-index:400;display:flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(0,0,0,.95);border-bottom:1px solid #181828;backdrop-filter:blur(16px)}
+.r-info{flex:1;min-width:0}
+.r-manga{font-size:10px;color:#555;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.r-ch{font-size:14px;font-weight:700;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mode-grp{display:flex;background:#111;border:1px solid #222;border-radius:var(--r);overflow:hidden;flex-shrink:0}
+.mbtn{padding:6px 12px;font-size:11px;font-weight:700;border:none;background:transparent;color:#555;cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:.04em;transition:all .15s}
+.mbtn.on{background:var(--red);color:#fff}
+.r-page-wrap{padding-top:calc(var(--nav-h) + 54px);display:flex;flex-direction:column;align-items:center;min-height:calc(100vh - var(--nav-h) - 54px);padding-bottom:70px}
+.r-pview{display:flex;align-items:center;justify-content:center;padding:16px;flex:1;width:100%}
+.r-pview img{max-width:min(720px,100%);max-height:84vh;object-fit:contain;border-radius:4px;box-shadow:0 8px 48px rgba(0,0,0,.8)}
+.r-scroll-wrap{padding-top:calc(var(--nav-h) + 54px);display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:48px}
+.r-scroll-wrap img{max-width:min(820px,100%);width:100%}
+.r-controls{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:10px 20px 14px;background:rgba(0,0,0,.92);border-top:1px solid #181828;backdrop-filter:blur(16px);z-index:400}
+.r-controls button{height:36px;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:.04em;border-radius:var(--r);border:1px solid #2a2a3a;background:#141420;color:#ccc;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;flex-shrink:0}
+.r-controls button:hover{border-color:var(--red);color:var(--red)}
+.r-controls button:disabled{opacity:.2;pointer-events:none}
+.r-pg-info{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.r-pg-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888}
+.r-slider{width:100%;max-width:280px;accent-color:var(--red);cursor:pointer}
+
+/* NOVELS - built-in reader */
+.novel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ncard{display:flex;gap:14px;padding:16px;background:var(--ink1);border:1px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:all .2s;position:relative}
+.ncard:hover{border-color:var(--red);transform:translateY(-2px)}
+.nicon{width:52px;height:76px;flex-shrink:0;border-radius:7px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border)}
+.nbody{flex:1;min-width:0}
+.ntype{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:5px}
+.ntype.ln{background:rgba(74,184,255,.1);color:var(--blue);border:1px solid rgba(74,184,255,.25)}
+.ntype.wn{background:rgba(0,212,170,.1);color:var(--teal);border:1px solid rgba(0,212,170,.25)}
+.nname{font-size:13px;font-weight:700;margin-bottom:5px}
+.ndesc{font-size:11px;color:var(--fg1);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* Novel detail & reader */
+#novel-detail-page{background:var(--ink)}
+.nv-hero{display:flex;gap:20px;padding:24px;background:var(--ink2);border-bottom:1px solid var(--border)}
+.nv-icon-big{width:80px;height:115px;border-radius:var(--rl);background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:36px;border:1px solid var(--border);flex-shrink:0}
+.nv-info{flex:1}
+.nv-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.05em;margin-bottom:6px}
+.nv-desc{font-size:13px;color:var(--fg1);line-height:1.75;margin-bottom:12px}
+.nv-ch-list{padding:16px 24px 40px}
+.nv-ch-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:var(--r);margin-bottom:4px;cursor:pointer;border:1px solid transparent;background:var(--ink1);transition:all .15s}
+.nv-ch-item:hover{border-color:var(--red);background:var(--ink2)}
+.nv-ch-title{font-size:13px;font-weight:600}
+.nv-ch-sub{font-size:11px;color:var(--fg2);margin-top:2px}
+/* Novel text reader */
+#novel-reader-page{background:var(--ink)}
+.nr-bar{position:fixed;top:var(--nav-h);left:0;right:0;z-index:400;display:flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(8,8,14,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+.nr-content{max-width:680px;margin:0 auto;padding:calc(var(--nav-h) + 70px) 24px 60px;font-size:16px;line-height:2;color:var(--fg0)}
+.nr-content h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.05em;margin-bottom:24px;color:var(--fg0)}
+.nr-content p{margin-bottom:20px;color:var(--fg1)}
+.font-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.font-controls button{width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:var(--ink3);color:var(--fg0);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.font-controls button:hover{border-color:var(--red)}
+.font-controls span{font-size:12px;color:var(--fg2);min-width:30px;text-align:center}
+
+/* STATS */
+.sh{background:linear-gradient(135deg,rgba(232,48,74,.1),transparent);border:1px solid rgba(232,48,74,.2);border-radius:var(--rxl);padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:24px}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--gold);letter-spacing:.02em;line-height:1}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.sbox{background:var(--ink2);border:1px solid var(--border);border-radius:var(--rl);padding:16px}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--red);line-height:1}
+.sl{font-size:12px;color:var(--fg1);margin-top:4px;font-weight:600}
+.hrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.hrow:hover .htitle{color:var(--red)}
+.hthumb{width:38px;height:54px;border-radius:5px;object-fit:cover;background:var(--ink3);flex-shrink:0}
+.htitle{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s}
+.hsub{font-size:11px;color:var(--fg2);margin-top:2px}
+.hdate{font-size:10px;color:var(--fg2);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+
+/* UTILS */
+.loader{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px;color:var(--fg2);flex-direction:column;font-size:13px}
+.spin{width:28px;height:28px;border:2px solid var(--ink4);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.errmsg{padding:30px;text-align:center;color:var(--red);font-size:13px;line-height:1.7}
+.empty{padding:70px 20px;text-align:center;color:var(--fg2);display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty .ei{font-size:46px;opacity:.4}
+.empty h3{font-size:15px;color:var(--fg1);font-weight:600}
+.empty p{font-size:12px;max-width:280px;line-height:1.7}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink3);color:var(--fg0);font-size:12px;font-weight:600;letter-spacing:.03em;padding:10px 20px;border-radius:20px;border:1px solid var(--border2);opacity:0;transition:all .25s;z-index:9999;white-space:nowrap;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{color:var(--teal);border-color:rgba(0,212,170,.3)}
+#toast.bad{color:var(--red);border-color:rgba(232,48,74,.3)}
+#debug-bar{position:fixed;bottom:0;left:0;right:0;background:#0a0a20;border-top:1px solid var(--border);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a4a6a;z-index:9000;display:none}
+#debug-bar.show{display:block}
+
+/* SAVED / OFFLINE */
+.dl-row{display:flex;align-items:center;gap:14px;padding:14px;background:var(--ink2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.dl-row:hover{border-color:var(--red)}
+.dl-thumb{width:46px;height:66px;border-radius:7px;object-fit:cover;background:var(--ink3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+@media(max-width:640px){
+  #nav{padding:0 12px;gap:8px}
+  .logo span{display:none}
+  .nav-links{gap:2px}
+  .nav-link{padding:5px 9px;font-size:11px}
+  .hero{padding:36px 14px 28px}
+  .section,.continue-wrap,.d-wrap,.nv-ch-list{padding-left:14px;padding-right:14px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+  .d-hero{flex-direction:column;align-items:flex-start;margin-top:-70px;gap:14px}
+  .d-poster{width:105px;height:155px}
+  .novel-grid{grid-template-columns:1fr}
+  .sh{flex-direction:column;text-align:center}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .r-controls button{padding:0 12px}
+  .nr-content{font-size:15px;padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+<nav id="nav">
+  <div class="logo" onclick="goHome()">MangaVault<span>Free · Dark · No Ads</span></div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="searchInput" placeholder="Search any manga…" autocomplete="off" spellcheck="false"/>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="goHome()">Home</button>
+    <button class="nav-link" onclick="goPage('novels-page');renderNovels()">Novels</button>
+    <button class="nav-link" onclick="goPage('saved-page');renderSaved()">Saved</button>
+    <button class="nav-link" onclick="goPage('offline-page');renderOffline()">Offline</button>
+    <button class="nav-link" onclick="goPage('stats-page');renderStats()">Stats</button>
+  </div>
+</nav>
+
+<div id="app">
+  <!-- HOME -->
+  <div id="home-page" class="page active">
+    <div class="hero">
+      <h1>Read Manga<br/><b>Free &amp; Ad-Free</b></h1>
+      <p>Live chapters straight from MangaDex. Bookmark, download offline, track progress. Zero ads. Forever.</p>
+      <div class="hero-chips" id="genreChips"></div>
+    </div>
+    <div class="continue-wrap" id="continueWrap" style="margin-top:20px"></div>
+    <div class="section">
+      <div class="s-head"><div><div class="s-title" id="homeTitle">Popular Manga</div><div class="s-sub" id="homeSub">Live from MangaDex</div></div></div>
+      <div class="filters" id="filterBar"></div>
+      <div class="grid" id="mangaGrid"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="detail-page" class="page">
+    <div class="d-back"><img id="backdropImg" src="" alt=""/><div class="d-back-over"></div></div>
+    <div class="d-wrap">
+      <div class="d-hero">
+        <img id="dPoster" class="d-poster" src="" alt=""/>
+        <div class="d-info">
+          <div class="d-title" id="dTitle"></div>
+          <div class="d-tags" id="dTags"></div>
+          <div class="d-desc" id="dDesc"></div>
+          <div class="d-acts">
+            <button class="btn btn-red" onclick="readFirst()">▶ Start Reading</button>
+            <button class="btn btn-ghost" id="bmBtn" onclick="toggleBm()">🔖 Save</button>
+            <button class="btn btn-ghost" onclick="refreshCh()">↻ Update</button>
+          </div>
+        </div>
+      </div>
+      <div class="s-head" style="margin-bottom:10px">
+        <div class="s-title" id="chTitle">Chapters</div>
+        <div class="s-sub" id="chSub"></div>
+      </div>
+      <div id="chList" style="padding-bottom:40px"></div>
+    </div>
+  </div>
+
+  <!-- MANGA READER -->
+  <div id="reader-page" class="page">
+    <div class="r-bar">
+      <button class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:12px;flex-shrink:0" onclick="backFromReader()">← Back</button>
+      <div class="r-info"><div class="r-manga" id="rManga"></div><div class="r-ch" id="rCh"></div></div>
+      <div class="mode-grp">
+        <button class="mbtn on" id="mPage" onclick="setMode('page')">Page</button>
+        <button class="mbtn" id="mScroll" onclick="setMode('scroll')">Scroll</button>
+      </div>
+    </div>
+    <div id="readerContent"></div>
+    <div class="r-controls" id="rControls">
+      <button id="prevBtn" onclick="prevPage()">← Prev</button>
+      <div class="r-pg-info"><span class="r-pg-count" id="pgCount">1 / 1</span><input type="range" class="r-slider" id="pgSlider" min="1" max="1" value="1" oninput="jumpTo(+this.value)"/></div>
+      <button id="nextBtn" onclick="nextPage()">Next →</button>
+    </div>
+  </div>
+
+  <!-- NOVELS LIST -->
+  <div id="novels-page" class="page">
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Light Novels</div><div class="s-sub">Read inside the app — no redirects</div></div></div>
+      <div class="novel-grid" id="novelGrid"></div>
+    </div>
+  </div>
+
+  <!-- NOVEL DETAIL -->
+  <div id="novel-detail-page" class="page">
+    <div class="nv-hero" id="nvHero"></div>
+    <div class="nv-ch-list" id="nvChList"></div>
+  </div>
+
+  <!-- NOVEL READER -->
+  <div id="novel-reader-page" class="page">
+    <div class="nr-bar">
+      <button class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:12px;flex-shrink:0" onclick="backFromNovelReader()">← Back</button>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:.06em;text-transform:uppercase" id="nrManga"></div>
+        <div style="font-size:13px;font-weight:700;color:#eee;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="nrCh"></div>
+      </div>
+      <div class="font-controls">
+        <button onclick="changeFontSize(-1)">A-</button>
+        <span id="fsLabel">16</span>
+        <button onclick="changeFontSize(1)">A+</button>
+      </div>
+    </div>
+    <div class="nr-content" id="nrContent"></div>
+  </div>
+
+  <!-- SAVED -->
+  <div id="saved-page" class="page">
+    <div class="section">
+      <div class="s-head"><div class="s-title">Saved Manga</div></div>
+      <div class="grid" id="savedGrid"></div>
+    </div>
+  </div>
+
+  <!-- OFFLINE -->
+  <div id="offline-page" class="page">
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Downloaded Chapters</div><div class="s-sub">Read without internet</div></div></div>
+      <div id="offlineList"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="stats-page" class="page">
+    <div class="section" id="statsContent"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="debug-bar" id="debugBar"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG & CORS FIX
+// MangaDex API DOES support CORS from browsers, but needs:
+// 1. Correct Accept header
+// 2. Proper parameter encoding
+// 3. Fallback proxy if direct fails (e.g. some ISPs block it)
+// ═══════════════════════════════════════════════════════════════
+
+const MDEX = 'https://api.mangadex.org';
+const CDN  = 'https://uploads.mangadex.org';
+
+// CORS proxy fallbacks - tried in order if direct fails
+const PROXIES = [
+  null, // try direct first
+  'https://corsproxy.io/?',
+  'https://api.codetabs.com/v1/proxy?quest=',
+];
+let workingProxy = null; // cached working proxy
+
+// Robust fetch with CORS proxy fallback + logging
+async function apiFetch(path, label='') {
+  const fullUrl = MDEX + path;
+  const proxiesToTry = workingProxy !== null
+    ? [workingProxy] // use cached if we know what works
+    : PROXIES;
+
+  for (const proxy of proxiesToTry) {
+    const url = proxy ? proxy + encodeURIComponent(fullUrl) : fullUrl;
+    try {
+      console.log(`[MangaVault] Fetching${proxy?' via proxy':' direct'}: ${label || path}`);
+      const res = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+      });
+      if (!res.ok) {
+        console.warn(`[MangaVault] HTTP ${res.status} for ${label || path}`);
+        continue;
+      }
+      const data = await res.json();
+      if (data.result === 'error') {
+        console.warn(`[MangaVault] API error for ${label}:`, data.errors);
+        continue;
+      }
+      // Cache this proxy as working
+      if (workingProxy === null) {
+        workingProxy = proxy;
+        debugLog(`API working via: ${proxy || 'direct'}`);
+      }
+      return data;
+    } catch (err) {
+      console.warn(`[MangaVault] Fetch failed${proxy?' via proxy':' direct'} for ${label || path}:`, err.message);
+    }
+  }
+  throw new Error(`All fetch attempts failed for: ${label || path}`);
+}
+
+// Debug bar
+function debugLog(msg) {
+  const bar = document.getElementById('debug-bar');
+  console.log('[MangaVault DEBUG]', msg);
+  bar.textContent = msg;
+  bar.classList.add('show');
+  clearTimeout(bar._t);
+  bar._t = setTimeout(() => bar.classList.remove('show'), 5000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let pages=[], curPage=0, readMode='page';
+let curManga=null, curChapters=[], curChIdx=0;
+let curFilter='all', allMangaData=[];
+let prevPageId='home-page';
+let curNovel=null, novelPrevPageId='novels-page';
+let novelFontSize=16;
+
+const LS = k => { try { return JSON.parse(localStorage.getItem(k)||'null'); } catch(e) { return null; } };
+let BM    = LS('mv5_bm')    || {};
+let DL    = LS('mv5_dl')    || {};
+let HIST  = LS('mv5_hist')  || [];
+let READ  = LS('mv5_read')  || {};
+let STATS = LS('mv5_stats') || {pages:0,chapters:0,streak:0,lastDate:null,lastRead:null};
+function persist() {
+  try {
+    localStorage.setItem('mv5_bm',    JSON.stringify(BM));
+    localStorage.setItem('mv5_dl',    JSON.stringify(DL));
+    localStorage.setItem('mv5_hist',  JSON.stringify(HIST));
+    localStorage.setItem('mv5_read',  JSON.stringify(READ));
+    localStorage.setItem('mv5_stats', JSON.stringify(STATS));
+  } catch(e) { console.warn('[MangaVault] localStorage save failed:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CATALOG
+// ═══════════════════════════════════════════════════════════════
+const CATALOG = [
+  {q:"Komi Can't Communicate",              tags:['romance','comedy']},
+  {q:"Alya Sometimes Hides Her Feelings in Russian", tags:['romance','comedy']},
+  {q:"Spy x Family",                        tags:['action','comedy']},
+  {q:"Demon Slayer",                        tags:['action']},
+  {q:"Chainsaw Man",                        tags:['action']},
+  {q:"My Hero Academia",                    tags:['action']},
+  {q:"Jujutsu Kaisen",                      tags:['action']},
+  {q:"One Piece",                           tags:['action','adventure']},
+  {q:"Solo Leveling",                       tags:['action','isekai']},
+  {q:"Attack on Titan",                     tags:['action','drama']},
+  {q:"Mushoku Tensei",                      tags:['isekai','romance']},
+  {q:"Overlord",                            tags:['isekai','action']},
+  {q:"Tensei Shitara Slime",                tags:['isekai','comedy']},
+  {q:"Isekai Quartet",                      tags:['isekai','comedy']},
+  {q:"Tate no Yuusha no Nariagari",         tags:['isekai','action']},
+  {q:"Horimiya",                            tags:['romance','comedy']},
+  {q:"Shigatsu wa Kimi no Uso",             tags:['romance','drama']},
+  {q:"Toradora",                            tags:['romance','comedy']},
+  {q:"Youkoso Jitsuryoku Shijou Shugi",     tags:['drama','action']},
+  {q:"Vinland Saga",                        tags:['action','drama','adventure']},
+  {q:"Blue Lock",                           tags:['action','sports']},
+  {q:"Haikyuu",                             tags:['sports','comedy']},
+];
+
+const FILTERS = ['all','action','romance','comedy','isekai','drama','sports','adventure'];
+const GENRES  = ['Action','Romance','Isekai','Comedy','Drama','Fantasy','Sports','Adventure'];
+
+// ═══════════════════════════════════════════════════════════════
+// NOVELS (built-in, read inside the app)
+// ═══════════════════════════════════════════════════════════════
+const NOVELS = [
+  {
+    id:'komi', t:"Komi Can't Communicate",
+    icon:"📚", type:"ln",
+    desc:"Shouko Komi has a communication disorder but dreams of making 100 friends. At Itan Private High School, she meets Tadano Hitohito, the only person who notices her true nature. A heartwarming story about connection, anxiety, and the courage it takes to simply say hello.",
+    chapters:[
+      {title:"A Normal High School Girl", text:`Komi Shouko transferred to Itan Private High School at the start of spring. Everyone who saw her thought the same thing: she was some kind of goddess, descended from heaven just to grace their miserable lives with beauty.\n\nShe sat perfectly still at her desk. Her long black hair fell straight to her shoulders. Her uniform was immaculate. Her face was expressionless, serene — like a painting in a museum that you're not allowed to touch.\n\nTadano Hitohito sat next to her and thought: she looks terrifying.\n\nHe was the world's most average person. Average grades, average looks, average in every conceivable way. His only skill, if you could call it that, was reading the mood of a room. And the mood of this room was: nobody is talking to the girl next to Tadano.\n\n"Um," he said.\n\nKomi turned to face him. Her eyes were large, dark, luminous. She stared at him like he was the most fascinating thing she'd ever seen, or like she was trying to laser-beam him into ash.\n\nTadano could not tell which.\n\n"I'm Tadano," he said. "Nice to meet you."\n\nShe opened her mouth. Closed it. Opened it again.\n\nNothing came out.\n\nHer fingers gripped the edge of her desk so tightly her knuckles went white.\n\nTadano suddenly understood. This wasn't aloofness. This wasn't coldness. This was terror — a terror so complete it had paralysed her entirely.\n\nShe wanted to speak. She just... couldn't.\n\nWithout thinking, Tadano picked up a piece of chalk and wrote on the blackboard behind their desks: "Nice to meet you too?"\n\nKomi stared at it. Then, very slowly, she nodded.\n\nAnd Tadano Hitohito realised that Komi Shouko had just made her first friend.`},
+      {title:"Komi's Goal", text:`The classroom was empty after school. Outside, the sun was turning the sky amber and pink.\n\nKomi sat at her desk, and Tadano sat at his, and neither of them spoke for a while.\n\nThen Komi picked up a piece of chalk — it seemed to be her preferred method of communication — and wrote on the blackboard:\n\n"I have a communication disorder."\n\nTadano read it. Nodded. "I kind of figured."\n\nShe erased it. Wrote again: "Everyone thinks I'm cool and mysterious. I'm not. I'm just scared."\n\n"That makes sense," Tadano said. "Honestly, I thought you were going to vaporise me when you looked at me this morning."\n\nKomi's expression didn't change, but something around her eyes shifted — a flicker of what might have been amusement, or relief, or both.\n\n"I'm sorry," she wrote.\n\n"Don't be. It wasn't your fault." Tadano leaned back in his chair. "So what do you want to do about it?"\n\nKomi thought for a long moment. Then she wrote something on the board and stepped back so he could read it.\n\nIt said: "I want to make one hundred friends."\n\nTadano stared at it.\n\n"One hundred?"\n\nShe nodded.\n\n"That's... a lot."\n\nShe nodded again. Her expression was completely earnest.\n\nTadano looked at this beautiful, terrifying, desperately lonely girl and thought: that's the most human goal I've ever heard. And somehow, without meaning to, without even deciding to, he said:\n\n"Okay. I'll help you."\n\nKomi looked at him. And in her large, dark, luminous eyes, there was something that looked very much like hope.`},
+      {title:"The First Real Conversation", text:`Having a communication disorder meant that Komi Shouko experienced the world slightly differently from other people.\n\nWhen someone spoke to her, the words reached her fine. She understood them. She formulated a response. She knew exactly what she wanted to say.\n\nBut somewhere between her brain and her mouth, the words just... stopped.\n\nIt was like a wall. Made of glass. She could see through it perfectly. She could see the conversation she wanted to have, the friendship she wanted to build. She just couldn't get past the glass.\n\nTadano was different, she was starting to realise.\n\nWith Tadano, the wall was still there — it had been there her entire life, it wasn't going anywhere — but he'd found a way to pass notes under the door. The chalk. The blackboard. Written words, which somehow didn't trigger the paralysis in the same way.\n\nToday he'd found her on the roof at lunch.\n\n"Hiding?" he asked.\n\nShe considered denying it. Then nodded.\n\n"Good spot," he said, and sat down beside her. He pulled out his lunch. She had hers. They ate in companionable silence, watching clouds drift over the school buildings.\n\nAfter a while, Komi wrote in her notebook — she'd started carrying it, for this purpose — and showed him: "Do you eat up here often?"\n\n"Sometimes. When I need to think." He paused. "You can come up here whenever you want. I won't mind."\n\nShe wrote: "Won't people think it's strange?"\n\n"Who cares what people think?"\n\nKomi stared at him. This was, she decided, the most radical thing anyone had ever said to her.\n\nShe wrote: "Thank you. For not treating me like I'm strange."\n\nTadano read it. Shrugged. "You're not strange. You're just you." He smiled at her — a simple, ordinary smile, the kind that didn't ask anything of her. "And you're pretty good company, for someone who never talks."\n\nKomi felt the corners of her mouth move, very slightly, upward.\n\nFriend count: 1.`},
+    ]
+  },
+  {
+    id:'alya', t:"Alya Sometimes Hides Her Feelings in Russian",
+    icon:"🇷🇺", type:"ln",
+    desc:"Alisa Mikhailovna Kujou — the half-Russian school idol — has a habit of confessing her feelings to Kuze Masachika in Russian, safe in the knowledge that no Japanese high schooler could possibly understand her. She is wrong about this.",
+    chapters:[
+      {title:"The Russian Confessional", text:`Alisa Mikhailovna Kujou was, by any measurable standard, the most popular girl at Seirei Academy.\n\nShe was half-Russian, which explained the silver hair and the blue eyes and the cheekbones that looked like they'd been carved from expensive marble. She was also effortlessly brilliant — top of every class, student council material, the kind of person who made everyone else feel simultaneously inspired and inadequate.\n\nShe had one flaw.\n\nWhen she was flustered, she said things in Russian.\n\n"Ты сегодня снова выглядишь мило," she said to Kuze Masachika one Tuesday morning, which meant: You look cute again today.\n\nKuze Masachika sat next to her in homeroom and didn't look up from his light novel.\n\n"Spasibo," he said. Thank you.\n\nAlisa's brain short-circuited.\n\n"Wait," she said, in Japanese. "You — you understood that?"\n\n"Your pronunciation is very good," he said pleasantly, still not looking up.\n\n"How long," Alisa said very carefully, "have you spoken Russian?"\n\n"Since I was about seven. My grandmother is from Moscow." He turned a page. "You've been saying things to me in Russian for about three weeks now. I didn't want to embarrass you by mentioning it sooner."\n\nAlisa's face, which was normally composed to an almost supernatural degree, did something complicated.\n\n"What," she said, "exactly, have I said?"\n\n"Oh, various things." He smiled at his book. "Nothing I'd want to repeat in a school setting."\n\nAlisa considered, briefly, the possibility of transferring schools.\n\n"You could have told me," she said stiffly.\n\n"You seemed to be enjoying having a private language," Kuze said. "It would've been rude to take that away from you."\n\nHe was, Alisa thought savagely, completely insufferable.\n\nShe was also, she did not think but felt in some deep wordless part of herself, going to have a very difficult year.`},
+      {title:"Council Elections", text:`The student council election at Seirei Academy was, technically, a democratic process.\n\nIn practice, it was an inevitability. Alisa Mikhailovna Kujou would be president. Everyone knew it. The voting was a formality.\n\nWhat nobody had anticipated was Kuze Masachika submitting his name as a candidate.\n\n"Why?" Alisa asked him flatly, finding him at his locker the morning the candidate list went up.\n\n"I thought it'd be fun," he said.\n\n"You thought—" She controlled herself. "The student council is not fun. It's work. Important work. You'd have to attend meetings, manage budgets, organise events—"\n\n"I'm good at organising things."\n\n"You spend every spare moment reading novels."\n\n"I'm good at multitasking." He closed his locker and looked at her. "Besides, I think you need competition. You're going to run unopposed and win by default and learn nothing. Where's the growth in that?"\n\nAlisa stared at him.\n\n"Ты невыносим," she said.\n\nYou are unbearable.\n\n"I know," he said, in Russian. "But you keep talking to me anyway."\n\nThe first debate was scheduled for Friday. Alisa told herself she was going to destroy him.\n\nShe also told herself, in a language she was increasingly aware was not as private as she'd thought, that she was maybe, possibly, looking forward to it.`},
+    ]
+  },
+  {
+    id:'mushoku', t:"Mushoku Tensei: Jobless Reincarnation",
+    icon:"✨", type:"ln",
+    desc:"A 34-year-old NEET who wasted his life is given a second chance when he's reborn in a world of magic as Rudeus Greyrat — retaining all his memories and determined, this time, to actually live.",
+    chapters:[
+      {title:"Reincarnation", text:`I died at thirty-four years old.\n\nI won't bore you with the details. They're embarrassing. The short version is: I was a shut-in, I'd wasted my entire adult life, and when I finally tried to do something decent — stepping outside for the first time in years to help someone in danger — I got hit by a truck.\n\nClassic.\n\nBut here's the thing: I didn't stop existing.\n\nI found myself somewhere dark and warm and formless, aware that I was thinking but not sure what I was thinking with, and then — gradually, over what felt like months but might have been seconds — I became a baby.\n\nA baby in a completely different world.\n\nI could tell immediately that things were different. The smells were different. The sounds were different. The quality of the light, when I could finally see, was different — slightly more golden, slightly more saturated, like the world had been turned up one notch past reality.\n\nThe woman holding me was crying with happiness. A man stood over her shoulder, his hand on her back, his expression somewhere between awe and terror — the universal face of new fatherhood.\n\nThey said words I didn't understand.\n\nBut I understood the emotion.\n\nI thought: okay. You wasted one life. You don't get many second chances in this universe. Pay attention.\n\nI thought: this time, I'm going to do things differently.\n\nI thought: I'm going to learn everything I can. I'm going to work as hard as I should have worked the first time. I'm going to be kind to people. I'm going to live.\n\nI looked up at the woman who was apparently my new mother, with her tired, overjoyed face, and I thought: thank you.\n\nI couldn't say it yet. My mouth didn't work properly. But I thought it, with everything I had.\n\nThank you for this.`},
+      {title:"Magic", text:`Magic existed in this world. I worked this out within my first week.\n\nNot because anyone demonstrated it for me — my parents were far too busy keeping me alive and clean and fed, as parents of newborns tend to be. I worked it out because there was a book on the shelf in my nursery, and the book had pictures, and the pictures depicted things that were not physically possible.\n\nPeople throwing fire. People lifting boulders with a gesture. People flying.\n\nI stared at that book every time someone propped me in my little chair, which was often. I memorised every illustration.\n\nMy father — whose name I'd now gathered was Paul — noticed my fixation on the book. He started reading it to me.\n\nI couldn't understand the words yet. But the pictures were enough.\n\nAnd one afternoon, when I was alone in my nursery and very bored, I extended one small baby hand toward a block on the floor and thought, very deliberately: move.\n\nThe block didn't move.\n\nI tried again.\n\nNothing.\n\nI tried for an hour.\n\nOn the sixty-third attempt — I counted — the block slid three centimetres across the floor.\n\nI stared at it.\n\nThen I laughed. A baby's laugh, all gums and delight, uncontrolled and genuine.\n\nMagic was real. I could do it. I was going to learn everything about it.\n\nThis, I thought, was going to be a very different life from the last one.`},
+    ]
+  },
+  {
+    id:'rezero', t:"Re:Zero − Starting Life in Another World",
+    icon:"⏪", type:"wn",
+    desc:"Natsuki Subaru is pulled from his ordinary life into a fantasy world with no explanation. He quickly discovers he has one unique ability: Return by Death — every time he dies, he wakes up at a fixed point in the past. The only one who knows is him. The cost is everything.",
+    chapters:[
+      {title:"The Wrong World", text:`Subaru was on his way home from the convenience store, snacks in hand, when the world ended and began again.\n\nOne moment: the familiar glow of streetlights, the smell of asphalt, his own breath in the cold spring air.\n\nThe next moment: something else entirely.\n\nHe stood in a narrow street that smelled of horses and woodsmoke and something sweet and unfamiliar. The buildings were stone and timber. The people passing by wore clothes that belonged in a fantasy novel. Several of them were not, strictly speaking, human — one woman had cat ears, which Subaru was fairly sure was not a legal accessory in Tokyo.\n\n"Okay," Subaru said aloud, to no one. "I have been isekai'd."\n\nHe looked down at himself. Tracksuit, sneakers, plastic bag of snacks. The purchasing power of his convenience store snacks in a medieval fantasy setting was presumably zero.\n\n"Okay," he said again. He took a breath. "Classic setup. I've read this story. Any moment now, I should discover my unique ability, rescue a beautiful girl, and begin my journey to become the hero of another world."\n\nHe waited.\n\nNothing happened.\n\n"...Any moment now."\n\nA horse-drawn cart rumbled past, nearly running him over. A merchant yelled at him in a language he somehow understood perfectly. It started to rain.\n\nSubaru stood in the rain outside a fantastical medieval market and thought: I have no special powers. I have no special skills. I have snacks and a tracksuit.\n\nThis, he realised, was going to be harder than the novels made it look.`},
+      {title:"Return by Death", text:`He died for the first time that night.\n\nIt was quick, and painful, and he did not see it coming.\n\nAnd then — with a lurch that felt like falling up — he was standing in the market again. The same smells. The same cart. The same rain that hadn't started yet.\n\nSubaru stood very still.\n\nHe had just died. He was certain of that. The certainty of it sat in his chest like a stone — the knowledge of ending, of pain, of nothingness, and then: here. Again. Before.\n\nHe had returned.\n\nHe looked at his hands. Intact. He was intact. The tracksuit was dry. The snacks were in the bag.\n\nHe thought: this is my power.\n\nNot fire. Not strength. Not the ability to fly.\n\nReturn by Death.\n\nEvery time I die, I come back to this moment.\n\nHe stood in the market and felt the weight of that. The scope of it. The terrible, wonderful, specific horror of what it meant.\n\nEvery mistake, I can undo. Every wrong path, I can reconsider. Every person I fail to save—\n\nHe stopped that thought.\n\nHe thought instead: there is a silver-haired girl somewhere in this city, and she is in danger, and I have already died once trying to reach her, and I know now what I didn't know before.\n\nHe started walking.\n\nThis time, he would not make the same mistake.\n\nHe had, if it came to it, all the time in the world.`},
+    ]
+  },
+  {
+    id:'overlord', t:"Overlord",
+    icon:"💀", type:"ln",
+    desc:"The MMORPG Yggdrasil is shutting down. Momonga, the guild leader of Ainz Ooal Gown, decides to stay logged in until the servers go dark. When the clock reaches midnight, he doesn't return to reality. He's still in the game — but it isn't a game anymore.",
+    chapters:[
+      {title:"The Last Night", text:`The servers were supposed to go offline at midnight.\n\nMomonga sat at his desk — or, rather, his skeletal avatar sat on his throne in the Great Tomb of Nazarick — and watched the countdown timer tick downward. Twelve years. This game had occupied twelve years of his life, and in forty minutes, it would be gone.\n\nHe was the only guild member who had shown up.\n\nThis didn't surprise him. People had lives. Jobs. Families. The game had been part of their youth, and youth ended, and people moved on. It was natural. He understood it.\n\nBut Momonga had nothing to move on to. The game was where he'd built the only friendships that had ever felt real. The guild was the only family he'd known since his parents. And now even that was disappearing, leaving only him, alone in a digital castle that had taken years to build, waiting for the lights to go out.\n\nThe countdown reached zero.\n\nThe game did not end.\n\nMomonga — he tried to think of himself as Suzuki Satoru, his real name, but the thought seemed to slide away — looked around the throne room.\n\nThe NPCs were still there. They should have been frozen, motionless code. Instead, Albedo stood at his right hand, her expression complex, her eyes tracking.\n\n"My lord," she said. "You appear troubled."\n\nMomonga stared at her.\n\nShe had spoken without prompting. She had noticed his expression. She had — she had a self.\n\nHe reached for the system menu. It wasn't there.\n\nHe tried to log out. Nothing happened.\n\nHe sat very still on his throne and understood, in the sudden, total, vertiginous way you understand things that change everything, that the game was real.\n\nThat he was real in it.\n\nThat there was no going back.\n\nHe squared his skeletal shoulders. He was Ainz Ooal Gown now — guild master, Supreme Being, ruler of the Great Tomb of Nazarick.\n\nIf this was his world, he would rule it.`},
+    ]
+  },
+  {
+    id:'toradora', t:"Toradora!",
+    icon:"🐯", type:"ln",
+    desc:"Ryuuji Takasu looks like a delinquent. Taiga Aisaka is tiny and terrifying. They hate each other immediately — then discover they're each desperately in love with the other's best friend. An uneasy alliance becomes the most important relationship either of them has ever had.",
+    chapters:[
+      {title:"The Palmtop Tiger", text:`Ryuuji Takasu had inherited his father's eyes.\n\nThis was, in practical terms, a problem. His father had been a delinquent. His father's eyes had communicated violence at rest and murder while active. Ryuuji had these same eyes — sharp, narrow, permanently narrowed further by brows that made him look like he was planning something — and they had shaped the entire course of his social life.\n\nWhich was to say: he didn't have one.\n\nPeople took one look at him and decided he was dangerous. He wasn't. He was, in fact, an excellent cook who liked to clean and worry about small things. But none of that mattered when your face said: I will end you.\n\nThe first day of second year, he sat down in his new classroom and noticed two things.\n\nFirst: Kushieda Minori was in his class. He'd liked her since middle school. He felt his heart do something embarrassing.\n\nSecond: Aisaka Taiga was also in his class.\n\nThe Palmtop Tiger. He'd heard of her. Everyone had heard of her. A girl so small she barely reached his shoulder and so violent she'd hospitalised people for bumping into her in the hallway. She sat at her desk with the contained energy of a hand grenade with a loose pin.\n\nHe accidentally met her eyes.\n\nShe looked at him with an expression that said: try me.\n\nHe looked away.\n\nHe thought: this year is going to be a disaster.\n\nHe was, in ways he couldn't yet understand, absolutely right.`},
+      {title:"An Alliance", text:`He found a letter in his bag that afternoon.\n\nNo — not a letter. An envelope. A very small envelope, with a very cute design, and inside the envelope — nothing. The letter was missing.\n\nHe was puzzling over this when his front door crashed open.\n\nTaiga Aisaka stood in his hallway with an expression that could only be described as apocalyptic.\n\n"Give it back," she said.\n\n"I don't—"\n\n"The letter. The one you found in your bag because I put it in the wrong bag like an idiot." She held out one small, trembling hand. "Give it back and we will never speak of this again."\n\nRyuuji looked at the empty envelope.\n\n"There was no letter," he said. "Just the envelope."\n\nThe apocalyptic expression became something else. Something terrible. Something that suggested Ryuuji was about to have a very bad evening.\n\n"You read it," she said.\n\n"There was nothing to—"\n\n"YOU READ IT."\n\nWhat followed was, by any measure, one of the worst nights of Ryuuji's life.\n\nBut afterward — after Taiga had destroyed half his kitchen and he'd made her dinner because she'd apparently never eaten a real meal in her life and she'd admitted, finally, humiliatingly, that the letter was meant for Kitamura, his best friend, whom she was in love with —\n\nAfterward, they sat at his kitchen table and Ryuuji said: "I like Kushieda."\n\nTaiga stared at him. "The Minori?"\n\n"She's your best friend, right?" He took a breath. "So here's what I'm thinking. Alliance. I help you get Kitamura. You help me get Kushieda."\n\nTaiga looked at him for a long time.\n\n"You know," she said finally, "for someone with a face like a criminal, you think like a mediocre romance protagonist."\n\n"Is that a yes?"\n\nShe looked away. But the corner of her mouth moved.\n\n"Don't make a big deal out of it," she said.`},
+    ]
+  },
+  {
+    id:'ngnl', t:"No Game No Life",
+    icon:"🎮", type:"ln",
+    desc:"Siblings Sora and Shiro are legendary gamers, undefeated and anonymous, known online only as 'Blank'. When a mysterious chess match leads them to Disboard — a world where everything, from arguments to wars, is decided by games — they've finally found somewhere that feels like home.",
+    chapters:[
+      {title:"Blank", text:`There was a legend on the internet.\n\nIn every game, in every genre, there was a player — or maybe two players operating as one — who had never lost. Not once. Not a single time. Chess, Go, poker, shooters, strategy games, fighting games, mobile games, tabletop games — it didn't matter. They appeared, they played, they won, and they left no trace except a username.\n\nBlank.\n\nThe truth behind the legend was this: two siblings, sharing one account, with a rule between them that was simple and absolute: they played together, or not at all.\n\nSora was eighteen and hadn't left the apartment in years. He was the older sibling, technically, but he deferred to his stepsister in most things, because in most things she was correct. He handled the social games — deception, misdirection, reading people — and she handled everything else.\n\nShiro was eleven and had never been to school. She processed information the way a computer processed information — instantly, completely, without error. Chess bored her because it was solvable. She liked games that couldn't be solved.\n\nTogether, they were Blank. Separate, they were nothing. The world outside games was irrational and unfair and could not be won. They had both understood this for a long time.\n\nOn a Thursday in April, they received a chess challenge from an anonymous account.\n\nThey accepted, because they always accepted.\n\nBy move eight, Sora knew something was wrong. He'd never seen openings like this.\n\nBy move twelve, Shiro's eyes had narrowed to slits, which meant she was actually interested. She was never actually interested.\n\nThey won on move thirty.\n\nThe opponent typed: "Well played. Tell me — do you hate the real world?"\n\nSora and Shiro looked at each other.\n\n"Yes," they typed, together.\n\nThe world went white.`},
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function getCover(m) {
+  const r = m.relationships?.find(r => r.type === 'cover_art');
+  if (!r?.attributes?.fileName) return '';
+  return `${CDN}/covers/${m.id}/${r.attributes.fileName}.256.jpg`;
+}
+function getTitle(m) {
+  const t = m.attributes?.title;
+  return t?.en || Object.values(t || {})[0] || 'Unknown';
+}
+function isNew(ch) {
+  return ch.attributes?.publishAt && Date.now() - new Date(ch.attributes.publishAt) < 10 * 864e5;
+}
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show' + (type ? ' ' + type : '');
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 2800);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  window.scrollTo(0, 0);
+}
+function goHome() {
+  goPage('home-page');
+  document.querySelectorAll('.nav-link')[0].classList.add('active');
+}
+function backFromReader() { goPage(prevPageId || 'detail-page'); }
+function backFromNovelReader() { goPage(novelPrevPageId || 'novel-detail-page'); }
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  buildFilters();
+  buildGenreChips();
+  renderContinue();
+  await loadLibrary();
+}
+
+function buildFilters() {
+  const c = document.getElementById('filterBar');
+  FILTERS.forEach(f => {
+    const b = document.createElement('button');
+    b.className = 'fchip' + (f === 'all' ? ' on' : '');
+    b.textContent = f === 'all' ? 'All' : f[0].toUpperCase() + f.slice(1);
+    b.onclick = () => {
+      curFilter = f;
+      document.querySelectorAll('.fchip').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      renderGrid();
+    };
+    c.appendChild(b);
+  });
+}
+
+function buildGenreChips() {
+  const p = document.getElementById('genreChips');
+  GENRES.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'hchip'; b.textContent = g;
+    b.onclick = () => { document.getElementById('searchInput').value = g; doSearch(); };
+    p.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LIBRARY LOADING — with retry logic and good error messages
+// ═══════════════════════════════════════════════════════════════
+async function loadLibrary() {
+  const g = document.getElementById('mangaGrid');
+  g.innerHTML = '<div class="loader"><div class="spin"></div><div>Connecting to MangaDex…</div></div>';
+  document.getElementById('homeTitle').textContent = 'Popular Manga';
+  document.getElementById('homeSub').textContent = 'Live from MangaDex';
+
+  console.log('[MangaVault] Starting library load, catalog size:', CATALOG.length);
+
+  // Load in batches to avoid rate limiting
+  const BATCH = 4;
+  const results = [];
+  for (let i = 0; i < CATALOG.length; i += BATCH) {
+    const batch = CATALOG.slice(i, i + BATCH);
+    const batchResults = await Promise.allSettled(batch.map(c => fetchMangaByTitle(c.q)));
+    results.push(...batchResults.map((r, j) => ({
+      m: r.status === 'fulfilled' ? r.value : null,
+      meta: batch[j]
+    })));
+    // Show progress
+    const loaded = results.filter(x => x.m).length;
+    g.innerHTML = `<div class="loader"><div class="spin"></div><div>Loaded ${loaded} manga…</div></div>`;
+    await sleep(200); // small delay between batches
+  }
+
+  allMangaData = results.filter(x => x.m);
+  console.log(`[MangaVault] Library loaded: ${allMangaData.length}/${CATALOG.length} manga`);
+
+  if (allMangaData.length === 0) {
+    g.innerHTML = `<div class="errmsg">⚠️ Could not connect to MangaDex API.<br/><br/>
+    This can happen if:<br/>
+    • Your browser blocks cross-origin requests<br/>
+    • MangaDex is temporarily down<br/>
+    • Your ISP blocks the API<br/><br/>
+    <button class="btn btn-red" onclick="retryLoad()" style="margin-top:8px">Retry</button></div>`;
+    return;
+  }
+
+  renderGrid();
+  renderContinue();
+  checkNewChapters();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function retryLoad() {
+  workingProxy = null; // reset proxy cache
+  await loadLibrary();
+}
+
+async function fetchMangaByTitle(q) {
+  console.log('[MangaVault] Fetching manga:', q);
+  const path = `/manga?title=${encodeURIComponent(q)}&limit=1&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica`;
+  const data = await apiFetch(path, `manga:"${q}"`);
+  if (!data.data?.length) {
+    console.warn('[MangaVault] No results for:', q);
+    return null;
+  }
+  return data.data[0];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GRID
+// ═══════════════════════════════════════════════════════════════
+function renderGrid() {
+  const g = document.getElementById('mangaGrid'); g.innerHTML = '';
+  const list = curFilter === 'all' ? allMangaData : allMangaData.filter(x => x.meta.tags.includes(curFilter));
+  if (!list.length) { g.innerHTML = '<div class="errmsg">No manga for this filter.</div>'; return; }
+  list.forEach(({m}) => g.appendChild(makeCard(m)));
+}
+
+function makeCard(m) {
+  const cover = getCover(m), title = getTitle(m);
+  const isBm = !!BM[m.id], hasHist = HIST.some(h => h.mid === m.id);
+  const div = document.createElement('div'); div.className = 'card';
+  div.innerHTML = `<div class="card-cov">
+    ${cover ? `<img src="${cover}" alt="${title.replace(/"/g,'')}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-ph>📖</div>'"/>` : '<div class="card-ph">📖</div>'}
+    ${isBm ? '<div class="b-bm">⭐</div>' : ''}
+    ${hasHist ? '<div class="b-rd">Reading</div>' : ''}
+  </div>
+  <div class="card-body">
+    <div class="card-title">${title}</div>
+    <div class="card-meta"><div class="sdot${m.attributes?.status === 'completed' ? ' end' : ''}"></div>${m.attributes?.status || 'unknown'}</div>
+  </div>`;
+  div.onclick = () => openDetail(m);
+  return div;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════════
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  goHome();
+  document.getElementById('homeTitle').textContent = `"${q}"`;
+  document.getElementById('homeSub').textContent = 'MangaDex results';
+  document.getElementById('continueWrap').innerHTML = '';
+  const g = document.getElementById('mangaGrid');
+  g.innerHTML = '<div class="loader"><div class="spin"></div><div>Searching…</div></div>';
+  try {
+    console.log('[MangaVault] Searching for:', q);
+    const data = await apiFetch(
+      `/manga?title=${encodeURIComponent(q)}&limit=30&includes[]=cover_art&contentRating[]=safe&contentRating[]=suggestive`,
+      `search:"${q}"`
+    );
+    allMangaData = (data.data || []).map(m => ({m, meta: {tags: []}}));
+    console.log('[MangaVault] Search results:', allMangaData.length);
+    renderGrid();
+  } catch(err) {
+    console.error('[MangaVault] Search failed:', err);
+    g.innerHTML = `<div class="errmsg">Search failed: ${err.message}<br/><br/><button class="btn btn-ghost" onclick="doSearch()">Retry</button></div>`;
+  }
+}
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+// ═══════════════════════════════════════════════════════════════
+// DETAIL
+// ═══════════════════════════════════════════════════════════════
+async function openDetail(m) {
+  curManga = m;
+  prevPageId = document.querySelector('.page.active')?.id || 'home-page';
+  goPage('detail-page');
+  const title = getTitle(m), cover = getCover(m);
+  document.getElementById('dTitle').textContent = title;
+  document.getElementById('dPoster').src = cover || '';
+  document.getElementById('backdropImg').src = cover || '';
+  const desc = m.attributes?.description?.en || Object.values(m.attributes?.description || {})[0] || 'No description available.';
+  document.getElementById('dDesc').textContent = desc;
+  document.getElementById('dTags').innerHTML = (m.attributes?.tags || []).slice(0, 7).map(t => `<span class="tag">${t.attributes?.name?.en || ''}</span>`).join('');
+  updateBmBtn();
+  document.getElementById('chList').innerHTML = '<div class="loader"><div class="spin"></div><div>Loading chapters…</div></div>';
+  await loadCh();
+}
+
+function updateBmBtn() {
+  document.getElementById('bmBtn').textContent = BM[curManga?.id] ? '✅ Saved' : '🔖 Save';
+}
+
+async function loadCh() {
+  try {
+    console.log('[MangaVault] Loading chapters for:', getTitle(curManga));
+    const data = await apiFetch(
+      `/chapter?manga=${curManga.id}&translatedLanguage[]=en&order[chapter]=asc&limit=500`,
+      `chapters:${curManga.id}`
+    );
+    curChapters = data.data || [];
+    console.log('[MangaVault] Chapters loaded:', curChapters.length);
+    document.getElementById('chTitle').textContent = 'Chapters';
+    document.getElementById('chSub').textContent = `${curChapters.length} English chapters`;
+    renderChList();
+  } catch(err) {
+    console.error('[MangaVault] Chapter load failed:', err);
+    document.getElementById('chList').innerHTML = `<div class="errmsg">Could not load chapters: ${err.message}<br/><br/><button class="btn btn-ghost" onclick="loadCh()">Retry</button></div>`;
+  }
+}
+
+async function refreshCh() { toast('Checking for new chapters…'); await loadCh(); toast('Up to date ✓', 'ok'); }
+
+function renderChList() {
+  const cl = document.getElementById('chList'); cl.innerHTML = '';
+  if (!curChapters.length) { cl.innerHTML = '<div class="errmsg">No English chapters found.</div>'; return; }
+  curChapters.forEach((ch, i) => {
+    const num = ch.attributes?.chapter || '?';
+    const sub = ch.attributes?.title || '';
+    const date = ch.attributes?.publishAt ? new Date(ch.attributes.publishAt).toLocaleDateString() : '';
+    const isDl = !!DL[ch.id], isRead = !!READ[ch.id];
+    const row = document.createElement('div');
+    row.className = 'ch-item' + (isRead ? ' read' : '');
+    row.innerHTML = `<div style="flex:1;min-width:0">
+      <div class="ch-num">Chapter ${num}${isNew(ch) ? '<span class="ch-newdot"></span>' : ''}${isDl ? ' <span style="color:var(--teal);font-size:10px;font-weight:700">⬇</span>' : ''}</div>
+      ${sub ? `<div class="ch-sub">${sub}</div>` : ''}
+    </div>
+    <div class="ch-date">${date}</div>
+    <div class="ch-dl-btn ${isDl ? 'saved' : ''}" onclick="event.stopPropagation();dlCh(${i},this)">${isDl ? '✓' : '↓'}</div>`;
+    row.onclick = () => openReader(i);
+    cl.appendChild(row);
+  });
+}
+
+function toggleBm() {
+  if (!curManga) return;
+  if (BM[curManga.id]) { delete BM[curManga.id]; toast('Removed from saved'); }
+  else { BM[curManga.id] = {id:curManga.id, title:getTitle(curManga), cover:getCover(curManga), status:curManga.attributes?.status||''}; toast('Saved! 🔖', 'ok'); }
+  persist(); updateBmBtn();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MANGA READER
+// ═══════════════════════════════════════════════════════════════
+async function openReader(idx) {
+  curChIdx = idx;
+  const ch = curChapters[idx];
+  prevPageId = document.querySelector('.page.active')?.id || 'detail-page';
+  goPage('reader-page');
+  document.getElementById('rManga').textContent = getTitle(curManga);
+  document.getElementById('rCh').textContent = `Chapter ${ch.attributes?.chapter || '?'}${ch.attributes?.title ? ' — ' + ch.attributes.title : ''}`;
+  document.getElementById('readerContent').innerHTML = '<div class="loader" style="padding-top:100px"><div class="spin"></div><div>Loading pages…</div></div>';
+  document.getElementById('rControls').style.display = 'flex';
+
+  // Use offline copy if available
+  if (DL[ch.id]) {
+    const dl = DL[ch.id];
+    pages = dl.imgs.map(f => `${dl.baseUrl}/data/${dl.hash}/${f}`);
+    curPage = 0; renderReader(); markRead(ch.id); saveProgress(ch);
+    toast('Reading offline copy ✓', 'ok'); return;
+  }
+
+  try {
+    console.log('[MangaVault] Loading pages for chapter:', ch.id);
+    const data = await apiFetch(`/at-home/server/${ch.id}`, `pages:${ch.id}`);
+    const base = data.baseUrl, hash = data.chapter?.hash, imgs = data.chapter?.data || [];
+    pages = imgs.map(f => `${base}/data/${hash}/${f}`);
+    console.log('[MangaVault] Pages loaded:', pages.length);
+    curPage = 0; renderReader(); markRead(ch.id); saveProgress(ch);
+  } catch(err) {
+    console.error('[MangaVault] Page load failed:', err);
+    document.getElementById('readerContent').innerHTML = `<div class="errmsg" style="padding-top:120px">Failed to load pages: ${err.message}<br/><br/><button class="btn btn-ghost" onclick="openReader(${idx})">Retry</button></div>`;
+  }
+}
+
+function readFirst() { if (curChapters.length) openReader(0); }
+
+function renderReader() {
+  const rc = document.getElementById('readerContent'), bar = document.getElementById('rControls');
+  rc.innerHTML = '';
+  if (readMode === 'scroll') {
+    bar.style.display = 'none';
+    const w = document.createElement('div'); w.className = 'r-scroll-wrap';
+    pages.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src; img.alt = `Page ${i+1}`; img.loading = 'lazy';
+      img.onerror = () => { console.warn('[MangaVault] Image failed to load:', src); img.style.opacity = '.3'; };
+      w.appendChild(img);
+    });
+    rc.appendChild(w);
+  } else {
+    bar.style.display = 'flex';
+    const w = document.createElement('div'); w.className = 'r-page-wrap';
+    const pv = document.createElement('div'); pv.className = 'r-pview'; pv.id = 'pgView';
+    const img = document.createElement('img');
+    img.src = pages[curPage]; img.alt = `Page ${curPage+1}`;
+    img.onerror = () => { console.warn('[MangaVault] Page image failed:', pages[curPage]); };
+    pv.appendChild(img); w.appendChild(pv); rc.appendChild(w);
+    const sl = document.getElementById('pgSlider'); sl.max = pages.length; sl.value = curPage + 1;
+    document.getElementById('pgCount').textContent = `${curPage+1} / ${pages.length}`;
+    document.getElementById('prevBtn').disabled = curPage === 0 && curChIdx === 0;
+    document.getElementById('nextBtn').disabled = curPage === pages.length - 1 && curChIdx === curChapters.length - 1;
+    // update history progress
+    const h = HIST.find(x => x.mid === curManga?.id);
+    if (h) { h.page = curPage; h.pct = Math.round(curPage / pages.length * 100); persist(); }
+    STATS.pages = (STATS.pages || 0) + 1; persist();
+  }
+}
+
+function jumpTo(v) {
+  curPage = v - 1;
+  const img = document.querySelector('#pgView img');
+  if (img) img.src = pages[curPage];
+  document.getElementById('pgCount').textContent = `${curPage+1} / ${pages.length}`;
+}
+function prevPage() { if (curPage > 0) { curPage--; renderReader(); } else if (curChIdx > 0) openReader(curChIdx - 1); }
+function nextPage() { if (curPage < pages.length - 1) { curPage++; renderReader(); } else if (curChIdx < curChapters.length - 1) openReader(curChIdx + 1); }
+function setMode(m) {
+  readMode = m;
+  document.getElementById('mPage').className = 'mbtn' + (m === 'page' ? ' on' : '');
+  document.getElementById('mScroll').className = 'mbtn' + (m === 'scroll' ? ' on' : '');
+  renderReader();
+}
+
+// Swipe & keyboard
+let _tx = 0;
+document.getElementById('reader-page').addEventListener('touchstart', e => { _tx = e.touches[0].clientX; }, {passive:true});
+document.getElementById('reader-page').addEventListener('touchend', e => {
+  if (readMode !== 'page') return;
+  const dx = e.changedTouches[0].clientX - _tx;
+  if (Math.abs(dx) > 55) { dx < 0 ? nextPage() : prevPage(); }
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('reader-page').classList.contains('active')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextPage();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevPage();
+  if (e.key === 'Escape') backFromReader();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PROGRESS TRACKING
+// ═══════════════════════════════════════════════════════════════
+function markRead(chId) {
+  if (!READ[chId]) {
+    READ[chId] = true;
+    STATS.chapters = (STATS.chapters || 0) + 1;
+    const today = new Date().toDateString();
+    if (STATS.lastDate !== today) {
+      STATS.streak = STATS.lastDate === new Date(Date.now() - 864e5).toDateString() ? STATS.streak + 1 : 1;
+      STATS.lastDate = today;
+    }
+    STATS.lastRead = new Date().toISOString();
+    persist();
+  }
+}
+function saveProgress(ch) {
+  if (!curManga) return;
+  const entry = {mid:curManga.id, title:getTitle(curManga), ch:ch.attributes?.chapter||'?', chIdx:curChIdx, page:curPage, pct:0, cover:getCover(curManga), date:new Date().toISOString()};
+  const i = HIST.findIndex(h => h.mid === curManga.id);
+  if (i >= 0) HIST.splice(i, 1);
+  HIST.unshift(entry); HIST = HIST.slice(0, 30); persist();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONTINUE READING
+// ═══════════════════════════════════════════════════════════════
+function renderContinue() {
+  const w = document.getElementById('continueWrap'); w.innerHTML = '';
+  if (!HIST.length) return;
+  const last = HIST[0];
+  w.innerHTML = `<div class="c-card" onclick="resumeReading('${last.mid}','${encodeURIComponent(last.title)}')">
+    ${last.cover ? `<img class="c-thumb" src="${last.cover}" alt=""/>` : `<div class="c-thumb" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--ink4);border-radius:8px">📖</div>`}
+    <div class="c-info">
+      <div class="c-tag">Continue Reading</div>
+      <div class="c-title">${last.title}</div>
+      <div class="c-ch">Chapter ${last.ch} · Page ${(last.page||0)+1}</div>
+      <div class="c-bar"><div class="c-fill" style="width:${last.pct||0}%"></div></div>
+    </div>
+    <div style="font-size:22px;color:var(--fg2);flex-shrink:0">›</div>
+  </div>`;
+}
+
+async function resumeReading(mid, titleEnc) {
+  const title = decodeURIComponent(titleEnc);
+  toast('Resuming…');
+  try {
+    const m = await fetchMangaByTitle(title);
+    if (!m) { toast('Could not find manga', 'bad'); return; }
+    await openDetail(m);
+    const last = HIST.find(h => h.mid === mid);
+    if (last && curChapters.length > last.chIdx) {
+      await openReader(last.chIdx);
+      curPage = last.page || 0; renderReader();
+    }
+  } catch(err) { toast('Failed to resume: ' + err.message, 'bad'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DOWNLOAD
+// ═══════════════════════════════════════════════════════════════
+async function dlCh(idx, btn) {
+  const ch = curChapters[idx];
+  if (DL[ch.id]) { toast('Already downloaded!'); return; }
+  btn.textContent = '⏳'; btn.style.pointerEvents = 'none';
+  try {
+    const data = await apiFetch(`/at-home/server/${ch.id}`, `dl:${ch.id}`);
+    const hash = data.chapter?.hash, imgs = data.chapter?.data || [];
+    DL[ch.id] = {id:ch.id, chNum:ch.attributes?.chapter||'?', mangaTitle:getTitle(curManga), mangaId:curManga.id, hash, imgs, baseUrl:data.baseUrl, totalPages:imgs.length, cover:getCover(curManga), date:new Date().toLocaleDateString()};
+    persist(); btn.textContent = '✓'; btn.className = 'ch-dl-btn saved';
+    toast(`Chapter ${ch.attributes?.chapter} saved offline ✓`, 'ok');
+  } catch(err) {
+    btn.textContent = '↓'; btn.style.pointerEvents = 'auto';
+    toast('Download failed: ' + err.message, 'bad');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OFFLINE
+// ═══════════════════════════════════════════════════════════════
+function renderOffline() {
+  const ol = document.getElementById('offlineList'); ol.innerHTML = '';
+  const items = Object.values(DL);
+  if (!items.length) { ol.innerHTML = '<div class="empty"><div class="ei">📥</div><h3>No downloads yet</h3><p>Tap the ↓ button on any chapter to save for offline reading.</p></div>'; return; }
+  items.forEach(item => {
+    const d = document.createElement('div'); d.className = 'dl-row'; d.dataset.dlid = item.id;
+    d.innerHTML = `${item.cover ? `<img src="${item.cover}" style="width:46px;height:66px;border-radius:7px;object-fit:cover;flex-shrink:0" alt=""/>` : '<div class="dl-thumb">📖</div>'}
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:700">${item.mangaTitle}</div>
+      <div style="font-size:11px;color:var(--fg2);margin-top:3px">Chapter ${item.chNum} · ${item.totalPages} pages · ${item.date}</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button class="btn btn-red" style="height:30px;padding:0 12px;font-size:11px" onclick="event.stopPropagation();readOffline('${item.id}')">Read</button>
+      <button class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:11px" onclick="event.stopPropagation();delDl('${item.id}')">✕</button>
+    </div>`;
+    ol.appendChild(d);
+  });
+}
+
+function readOffline(id) {
+  const item = DL[id]; if (!item) { toast('Not found', 'bad'); return; }
+  prevPageId = 'offline-page'; goPage('reader-page');
+  document.getElementById('rManga').textContent = item.mangaTitle;
+  document.getElementById('rCh').textContent = `Chapter ${item.chNum} — Offline`;
+  pages = item.imgs.map(f => `${item.baseUrl}/data/${item.hash}/${f}`);
+  curPage = 0; renderReader();
+}
+
+function delDl(id) {
+  delete DL[id]; persist();
+  const el = document.querySelector(`[data-dlid="${id}"]`); if (el) el.remove();
+  toast('Deleted');
+  if (!document.querySelector('[data-dlid]')) renderOffline();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SAVED
+// ═══════════════════════════════════════════════════════════════
+function renderSaved() {
+  const g = document.getElementById('savedGrid'); g.innerHTML = '';
+  const bms = Object.values(BM);
+  if (!bms.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">🔖</div><h3>Nothing saved yet</h3><p>Click Save on any manga to bookmark it here.</p></div>'; return; }
+  bms.forEach(b => {
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `<div class="card-cov">${b.cover ? `<img src="${b.cover}" loading="lazy" alt=""/>` : '<div class="card-ph">📖</div>'}<div class="b-bm">⭐</div></div><div class="card-body"><div class="card-title">${b.title}</div><div class="card-meta"><div class="sdot${b.status==='completed'?' end':''}"></div>${b.status}</div></div>`;
+    card.onclick = () => fetchMangaByTitle(b.title).then(m => { if (m) openDetail(m); else toast('Could not load', 'bad'); });
+    g.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEW CHAPTER CHECK
+// ═══════════════════════════════════════════════════════════════
+async function checkNewChapters() {
+  const ids = Object.keys(BM).slice(0, 5);
+  if (!ids.length) return;
+  let n = 0;
+  for (const id of ids) {
+    try {
+      const data = await apiFetch(`/chapter?manga=${id}&translatedLanguage[]=en&order[chapter]=desc&limit=1`, `newcheck:${id}`);
+      if (data.data?.[0] && isNew(data.data[0])) n++;
+    } catch {}
+  }
+  if (n) toast(`🎉 ${n} new chapter${n > 1 ? 's' : ''} in your saved manga!`, 'ok');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════════
+function renderStats() {
+  const el = document.getElementById('statsContent');
+  const hist = HIST.slice(0, 10);
+  el.innerHTML = `
+  <div class="s-head"><div class="s-title">Reading Stats</div></div>
+  <div class="sh">
+    <div class="snum">${STATS.streak || 0}</div>
+    <div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">Day Streak 🔥</div>
+      <div style="font-size:13px;color:var(--fg1)">Keep reading every day to build your streak.</div>
+      ${STATS.lastRead ? `<div style="font-size:11px;color:var(--fg2);margin-top:6px;font-family:'JetBrains Mono',monospace">Last read: ${new Date(STATS.lastRead).toLocaleDateString()}</div>` : ''}
+    </div>
+  </div>
+  <div class="sgrid">
+    <div class="sbox"><div class="sn">${STATS.chapters || 0}</div><div class="sl">Chapters Read</div></div>
+    <div class="sbox"><div class="sn">${(STATS.pages || 0).toLocaleString()}</div><div class="sl">Pages Read</div></div>
+    <div class="sbox"><div class="sn">${Object.keys(BM).length}</div><div class="sl">Saved Manga</div></div>
+    <div class="sbox"><div class="sn">${Object.keys(DL).length}</div><div class="sl">Offline Chapters</div></div>
+  </div>
+  <div class="s-head" style="margin-bottom:10px"><div class="s-title">Reading History</div></div>
+  ${hist.length ? hist.map(x => `<div class="hrow" onclick="resumeReading('${x.mid}','${encodeURIComponent(x.title)}')">
+    ${x.cover ? `<img class="hthumb" src="${x.cover}" alt=""/>` : '<div class="hthumb" style="display:flex;align-items:center;justify-content:center;font-size:16px">📖</div>'}
+    <div style="flex:1;min-width:0"><div class="htitle">${x.title}</div><div class="hsub">Chapter ${x.ch} · Page ${(x.page||0)+1}</div></div>
+    <div class="hdate">${x.date ? new Date(x.date).toLocaleDateString() : ''}</div>
+  </div>`).join('') : '<div class="empty"><div class="ei">📊</div><h3>No history yet</h3><p>Start reading to track your progress.</p></div>'}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NOVELS — fully built-in reader, no external links
+// ═══════════════════════════════════════════════════════════════
+function renderNovels() {
+  const g = document.getElementById('novelGrid'); g.innerHTML = '';
+  NOVELS.forEach(n => {
+    const d = document.createElement('div'); d.className = 'ncard';
+    d.innerHTML = `<div class="nicon">${n.icon}</div>
+    <div class="nbody">
+      <span class="ntype ${n.type}">${n.type === 'ln' ? 'Light Novel' : 'Web Novel'}</span>
+      <div class="nname">${n.t}</div>
+      <div class="ndesc">${n.desc}</div>
+    </div>`;
+    d.onclick = () => openNovelDetail(n);
+    g.appendChild(d);
+  });
+}
+
+function openNovelDetail(novel) {
+  curNovel = novel;
+  novelPrevPageId = document.querySelector('.page.active')?.id || 'novels-page';
+  goPage('novel-detail-page');
+  document.getElementById('nvHero').innerHTML = `
+    <div class="nv-icon-big">${novel.icon}</div>
+    <div class="nv-info">
+      <span class="ntype ${novel.type}" style="margin-bottom:8px;display:inline-block">${novel.type === 'ln' ? 'Light Novel' : 'Web Novel'}</span>
+      <div class="nv-title">${novel.t}</div>
+      <div class="nv-desc">${novel.desc}</div>
+      <button class="btn btn-red" onclick="openNovelReader(0)" style="margin-top:4px">▶ Start Reading</button>
+    </div>`;
+  const cl = document.getElementById('nvChList');
+  cl.innerHTML = `<div class="s-title" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.07em;margin-bottom:12px">Chapters</div>`;
+  novel.chapters.forEach((ch, i) => {
+    const item = document.createElement('div'); item.className = 'nv-ch-item';
+    item.innerHTML = `<div><div class="nv-ch-title">Chapter ${i+1}: ${ch.title}</div><div class="nv-ch-sub">Tap to read</div></div><div style="color:var(--fg2)">›</div>`;
+    item.onclick = () => openNovelReader(i);
+    cl.appendChild(item);
+  });
+}
+
+function openNovelReader(idx) {
+  if (!curNovel) return;
+  const ch = curNovel.chapters[idx];
+  novelPrevPageId = document.querySelector('.page.active')?.id || 'novel-detail-page';
+  goPage('novel-reader-page');
+  document.getElementById('nrManga').textContent = curNovel.t;
+  document.getElementById('nrCh').textContent = `Chapter ${idx+1}: ${ch.title}`;
+
+  const content = document.getElementById('nrContent');
+  content.style.fontSize = novelFontSize + 'px';
+  document.getElementById('fsLabel').textContent = novelFontSize;
+
+  // Format paragraphs
+  const paragraphs = ch.text.split('\n\n').filter(p => p.trim());
+  content.innerHTML = `<h2>Chapter ${idx+1}: ${ch.title}</h2>` +
+    paragraphs.map(p => `<p>${p.replace(/\n/g, '<br/>')}</p>`).join('');
+
+  // Prev/Next chapter buttons
+  const prevBtn = idx > 0 ? `<button class="btn btn-ghost" onclick="openNovelReader(${idx-1})" style="flex-shrink:0">← Prev Chapter</button>` : '';
+  const nextBtn = idx < curNovel.chapters.length - 1 ? `<button class="btn btn-red" onclick="openNovelReader(${idx+1})" style="flex-shrink:0">Next Chapter →</button>` : '<span style="color:var(--fg2);font-size:13px">End of available chapters</span>';
+  content.innerHTML += `<div style="display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border)">${prevBtn}<div style="flex:1"></div>${nextBtn}</div>`;
+
+  // Track reading
+  markNovelRead(curNovel.id, idx);
+}
+
+function changeFontSize(delta) {
+  novelFontSize = Math.min(22, Math.max(12, novelFontSize + delta));
+  document.getElementById('nrContent').style.fontSize = novelFontSize + 'px';
+  document.getElementById('fsLabel').textContent = novelFontSize;
+}
+
+function markNovelRead(novelId, chIdx) {
+  STATS.chapters = (STATS.chapters || 0) + 1;
+  STATS.pages = (STATS.pages || 0) + 5; // approximate pages
+  const today = new Date().toDateString();
+  if (STATS.lastDate !== today) {
+    STATS.streak = STATS.lastDate === new Date(Date.now() - 864e5).toDateString() ? STATS.streak + 1 : 1;
+    STATS.lastDate = today;
+  }
+  STATS.lastRead = new Date().toISOString();
+  // Add to history
+  const entry = {mid:'novel_'+novelId, title:curNovel.t, ch:chIdx+1, chIdx, page:0, pct:Math.round((chIdx/curNovel.chapters.length)*100), cover:'', date:new Date().toISOString()};
+  const i = HIST.findIndex(h => h.mid === 'novel_'+novelId);
+  if (i >= 0) HIST.splice(i, 1);
+  HIST.unshift(entry); HIST = HIST.slice(0, 30);
+  persist();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
